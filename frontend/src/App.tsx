@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Header from './components/Header';
 import MapView from './components/MapView';
-import DistrictDrawer from './components/DistrictDrawer';
-import CandidateModal from './components/CandidateModal';
+import ContactUs from './components/ContactUs';
+import CandidatesSection from './components/CandidatesSection';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -14,40 +15,49 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  const [activeTab, setActiveTab] = useState<'map' | 'contact'>('map');
   const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(null);
-  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
+  const candidatesSectionRef = useRef<HTMLDivElement>(null);
 
   const handleDistrictClick = (districtId: string) => {
     setSelectedDistrictId(districtId);
+
+    // Scroll to candidates section
+    setTimeout(() => {
+      candidatesSectionRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }, 100);
   };
 
-  const handleCandidateClick = (candidateId: string) => {
-    setSelectedCandidateId(candidateId);
-  };
-
-  const handleCloseDrawer = () => {
+  const handleTabChange = (tab: 'map' | 'contact') => {
+    setActiveTab(tab);
     setSelectedDistrictId(null);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedCandidateId(null);
   };
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="h-screen w-screen overflow-hidden">
-        <MapView onDistrictClick={handleDistrictClick} />
+      <div className="min-h-screen w-screen flex flex-col">
+        {/* Header */}
+        <Header activeTab={activeTab} onTabChange={handleTabChange} />
 
-        <DistrictDrawer
-          districtId={selectedDistrictId}
-          onClose={handleCloseDrawer}
-          onCandidateClick={handleCandidateClick}
-        />
+        {/* Main Content */}
+        {activeTab === 'map' ? (
+          <>
+            {/* Map Section */}
+            <div className="w-full h-[70vh]">
+              <MapView onDistrictClick={handleDistrictClick} />
+            </div>
 
-        <CandidateModal
-          candidateId={selectedCandidateId}
-          onClose={handleCloseModal}
-        />
+            {/* Candidates Section */}
+            <div ref={candidatesSectionRef}>
+              <CandidatesSection districtId={selectedDistrictId} />
+            </div>
+          </>
+        ) : (
+          <ContactUs />
+        )}
       </div>
     </QueryClientProvider>
   );

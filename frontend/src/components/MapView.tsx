@@ -1,72 +1,29 @@
 /**
- * MapView Component - Interactive Leaflet map with district boundaries
+ * MapView Component - Interactive Leaflet map with district markers
  */
-import React, { useRef } from 'react';
-import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
-import L from 'leaflet';
+import React from 'react';
+import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useDistricts } from '../hooks/useDistricts';
-import { districtsToGeoJSON, getDefaultMapConfig } from '../services/mapService';
+import { getDefaultMapConfig } from '../services/mapService';
 
 interface MapViewProps {
   onDistrictClick: (districtId: string) => void;
 }
 
-// Component to handle map events
-const MapEvents: React.FC<{ onDistrictClick: (districtId: string) => void }> = ({
-  onDistrictClick,
-}) => {
-  const map = useMap();
-
-  return null;
+// Generate different shades of red for each district
+const getRedShade = (index: number, total: number): string => {
+  // Generate colors from dark red to light red/pink
+  const hue = 0; // Red hue
+  const saturation = 70 + (index % 5) * 5; // Vary saturation
+  const lightness = 35 + (index * 40) / total; // Vary lightness from 35% to 75%
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 };
 
 const MapView: React.FC<MapViewProps> = ({ onDistrictClick }) => {
-  const { data: districts, isLoading, error } = useDistricts();
-  const hoveredLayerRef = useRef<L.Layer | null>(null);
+  const { data: districtsData, isLoading, error } = useDistricts();
 
   const { center, zoom } = getDefaultMapConfig();
-
-  const onEachFeature = (feature: any, layer: L.Layer) => {
-    const districtId = feature.properties?.id;
-    const districtName = feature.properties?.name;
-
-    // Hover effects
-    layer.on({
-      mouseover: (e) => {
-        const target = e.target;
-        target.setStyle({
-          fillOpacity: 0.5,
-        });
-
-        if (hoveredLayerRef.current) {
-          hoveredLayerRef.current = target;
-        }
-
-        // TODO: Implement tooltip component
-        console.log('Hovering over:', districtName);
-      },
-      mouseout: (e) => {
-        const target = e.target;
-        target.setStyle({
-          fillOpacity: 0.2,
-        });
-      },
-      click: () => {
-        if (districtId) {
-          onDistrictClick(districtId);
-        }
-      },
-    });
-  };
-
-  const style = {
-    fillColor: '#627BC1',
-    weight: 2,
-    opacity: 1,
-    color: '#627BC1',
-    fillOpacity: 0.2,
-  };
 
   if (error) {
     return (
@@ -77,6 +34,8 @@ const MapView: React.FC<MapViewProps> = ({ onDistrictClick }) => {
       </div>
     );
   }
+
+  const totalDistricts = districtsData?.features?.length || 0;
 
   return (
     <div className="relative w-full h-full">
@@ -91,30 +50,68 @@ const MapView: React.FC<MapViewProps> = ({ onDistrictClick }) => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {districts && (
-          <GeoJSON
-            data={districtsToGeoJSON(districts)}
-            style={style}
-            onEachFeature={onEachFeature}
-          />
-        )}
+        {districtsData && districtsData.features && districtsData.features.map((feature: any, index: number) => {
+          const [lng, lat] = feature.geometry.coordinates;
+          const districtName = feature.properties.name;
+          const districtId = `district-${index + 1}`;
+          const fillColor = getRedShade(index, totalDistricts);
 
-        <MapEvents onDistrictClick={onDistrictClick} />
+          return (
+            <CircleMarker
+              key={districtId}
+              center={[lat, lng]}
+              radius={15}
+              pathOptions={{
+                fillColor: fillColor,
+                fillOpacity: 0.9,
+                color: '#8B0000', // Dark red border
+                weight: 3,
+              }}
+              eventHandlers={{
+                click: () => onDistrictClick(districtId),
+                mouseover: (e) => {
+                  e.target.setStyle({
+                    fillOpacity: 1,
+                    radius: 20,
+                    weight: 4,
+                  });
+                  e.target.openPopup();
+                },
+                mouseout: (e) => {
+                  e.target.setStyle({
+                    fillOpacity: 0.9,
+                    radius: 15,
+                    weight: 3,
+                  });
+                },
+              }}
+            >
+              <Popup>
+                <div className="text-center">
+                  <strong className="text-base">{districtName}</strong>
+                  <br />
+                  <span className="text-sm text-gray-600">Click to view details</span>
+                </div>
+              </Popup>
+            </CircleMarker>
+          );
+        })}
       </MapContainer>
 
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-[1000]">
           <div className="text-gray-600">Loading districts...</div>
         </div>
       )}
 
-      {/* Map Controls/Legend */}
-      <div className="absolute top-4 left-4 bg-white p-4 rounded-lg shadow-lg z-[1000]">
-        <h2 className="text-lg font-semibold mb-2">
-          Congressional Districts
-        </h2>
-        <p className="text-sm text-gray-600">
-          Click on a district to view candidates
+      {/* Legend */}
+      <div className="absolute bottom-4 right-4 bg-white p-4 rounded-lg shadow-lg z-[1000]">
+        <h3 className="text-sm font-semibold mb-2">Texas Congressional Districts</h3>
+        <p className="text-xs text-gray-600">
+          {totalDistricts} districts shown
+        </p>
+        <p className="text-xs text-gray-600 mt-1">
+          Click a marker to view details
         </p>
       </div>
     </div>

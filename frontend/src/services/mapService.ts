@@ -29,7 +29,7 @@ export const districtsToGeoJSON = (districts: District[]): GeoJSON.FeatureCollec
  */
 export const getDefaultMapConfig = () => {
   return {
-    center: [39.8283, -98.5795] as [number, number], // Center of US (lat, lng for Leaflet)
-    zoom: 4,
+    center: [31.0, -100.0] as [number, number], // Center of Texas (lat, lng for Leaflet)
+    zoom: 6,
   };
 };
