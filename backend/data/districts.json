@@ -1,0 +1,59 @@
+[
+  {
+    "id": "CA-12",
+    "name": "California 12th District",
+    "state": "California",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-122.5148, 37.7081],
+          [-122.5148, 37.8081],
+          [-122.3648, 37.8081],
+          [-122.3648, 37.7081],
+          [-122.5148, 37.7081]
+        ]
+      ]
+    },
+    "population": 779824,
+    "median_income": 112449
+  },
+  {
+    "id": "NY-14",
+    "name": "New York 14th District",
+    "state": "New York",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-73.9442, 40.7282],
+          [-73.9442, 40.7982],
+          [-73.8442, 40.7982],
+          [-73.8442, 40.7282],
+          [-73.9442, 40.7282]
+        ]
+      ]
+    },
+    "population": 696664,
+    "median_income": 59347
+  },
+  {
+    "id": "TX-21",
+    "name": "Texas 21st District",
+    "state": "Texas",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-98.6936, 29.4241],
+          [-98.6936, 30.2672],
+          [-97.7431, 30.2672],
+          [-97.7431, 29.4241],
+          [-98.6936, 29.4241]
+        ]
+      ]
+    },
+    "population": 766987,
+    "median_income": 71638
+  }
+]

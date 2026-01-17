@@ -1,0 +1,251 @@
+[
+  {
+    "id": "1",
+    "name": "Nancy Pelosi",
+    "party": "Democratic",
+    "district_id": "CA-12",
+    "status": "current",
+    "image_url": "https://via.placeholder.com/150/0000FF/FFFFFF?text=NP",
+    "bio": "Nancy Pelosi has represented California's 12th congressional district since 1987. She served as the 52nd Speaker of the House from 2007 to 2011 and again from 2019 to 2023. Pelosi is known for her work on healthcare reform, climate change legislation, and LGBTQ+ rights.",
+    "voting_record": [
+      {
+        "bill_id": "HR-1234",
+        "bill_name": "Affordable Care Act Expansion",
+        "vote": "yes",
+        "date": "2024-03-15"
+      },
+      {
+        "bill_id": "HR-5678",
+        "bill_name": "Climate Action Now Act",
+        "vote": "yes",
+        "date": "2024-05-22"
+      },
+      {
+        "bill_id": "HR-9012",
+        "bill_name": "Tax Reform Bill",
+        "vote": "no",
+        "date": "2024-07-10"
+      }
+    ],
+    "funding": {
+      "total": 3245000,
+      "sources": [
+        {
+          "name": "Individual Contributions",
+          "amount": 1845000,
+          "type": "individual"
+        },
+        {
+          "name": "Democratic Party PAC",
+          "amount": 950000,
+          "type": "PAC"
+        },
+        {
+          "name": "Tech Industry PAC",
+          "amount": 450000,
+          "type": "PAC"
+        }
+      ]
+    },
+    "website": "https://pelosi.house.gov",
+    "email": "contact@pelosi.gov"
+  },
+  {
+    "id": "2",
+    "name": "John Martinez",
+    "party": "Republican",
+    "district_id": "CA-12",
+    "status": "future",
+    "image_url": "https://via.placeholder.com/150/FF0000/FFFFFF?text=JM",
+    "bio": "John Martinez is a business owner and community leader running to represent California's 12th district. He focuses on economic growth, public safety, and reducing government spending. Martinez has been active in San Francisco's Chamber of Commerce for over 15 years.",
+    "voting_record": null,
+    "funding": {
+      "total": 580000,
+      "sources": [
+        {
+          "name": "Individual Contributions",
+          "amount": 380000,
+          "type": "individual"
+        },
+        {
+          "name": "Small Business PAC",
+          "amount": 150000,
+          "type": "PAC"
+        },
+        {
+          "name": "Republican Party Support",
+          "amount": 50000,
+          "type": "party"
+        }
+      ]
+    },
+    "website": "https://martinezforcongress.com",
+    "email": "info@martinezforcongress.com"
+  },
+  {
+    "id": "3",
+    "name": "Alexandria Ocasio-Cortez",
+    "party": "Democratic",
+    "district_id": "NY-14",
+    "status": "current",
+    "image_url": "https://via.placeholder.com/150/0000FF/FFFFFF?text=AOC",
+    "bio": "Alexandria Ocasio-Cortez, commonly known as AOC, has represented New York's 14th congressional district since 2019. She is a member of the Democratic Socialists of America and is known for her advocacy for the Green New Deal, Medicare for All, and progressive economic policies.",
+    "voting_record": [
+      {
+        "bill_id": "HR-2345",
+        "bill_name": "Green New Deal Resolution",
+        "vote": "yes",
+        "date": "2024-02-28"
+      },
+      {
+        "bill_id": "HR-6789",
+        "bill_name": "Medicare for All Act",
+        "vote": "yes",
+        "date": "2024-04-12"
+      },
+      {
+        "bill_id": "HR-3456",
+        "bill_name": "Defense Spending Increase",
+        "vote": "no",
+        "date": "2024-06-05"
+      }
+    ],
+    "funding": {
+      "total": 1950000,
+      "sources": [
+        {
+          "name": "Individual Contributions (under $200)",
+          "amount": 1650000,
+          "type": "individual"
+        },
+        {
+          "name": "Progressive PACs",
+          "amount": 250000,
+          "type": "PAC"
+        },
+        {
+          "name": "Labor Unions",
+          "amount": 50000,
+          "type": "PAC"
+        }
+      ]
+    },
+    "website": "https://ocasio-cortez.house.gov",
+    "email": "contact@ocasiocortez.gov"
+  },
+  {
+    "id": "4",
+    "name": "Michael Chen",
+    "party": "Republican",
+    "district_id": "NY-14",
+    "status": "future",
+    "image_url": "https://via.placeholder.com/150/FF0000/FFFFFF?text=MC",
+    "bio": "Michael Chen is a former NYPD officer and small business owner challenging for New York's 14th district seat. His platform focuses on public safety, supporting law enforcement, and bringing fiscal responsibility to Washington.",
+    "voting_record": null,
+    "funding": {
+      "total": 425000,
+      "sources": [
+        {
+          "name": "Individual Contributions",
+          "amount": 275000,
+          "type": "individual"
+        },
+        {
+          "name": "Law Enforcement PAC",
+          "amount": 100000,
+          "type": "PAC"
+        },
+        {
+          "name": "Republican Party",
+          "amount": 50000,
+          "type": "party"
+        }
+      ]
+    },
+    "website": "https://chenforcongress.com",
+    "email": "contact@chenforcongress.com"
+  },
+  {
+    "id": "5",
+    "name": "Chip Roy",
+    "party": "Republican",
+    "district_id": "TX-21",
+    "status": "current",
+    "image_url": "https://via.placeholder.com/150/FF0000/FFFFFF?text=CR",
+    "bio": "Chip Roy has represented Texas's 21st congressional district since 2019. A member of the House Freedom Caucus, Roy focuses on conservative fiscal policy, border security, and limiting federal government overreach. Before Congress, he served as First Assistant Attorney General of Texas.",
+    "voting_record": [
+      {
+        "bill_id": "HR-4567",
+        "bill_name": "Border Security Enhancement Act",
+        "vote": "yes",
+        "date": "2024-01-20"
+      },
+      {
+        "bill_id": "HR-7890",
+        "bill_name": "Federal Budget Reduction Act",
+        "vote": "yes",
+        "date": "2024-03-30"
+      },
+      {
+        "bill_id": "HR-2468",
+        "bill_name": "Infrastructure Investment Act",
+        "vote": "no",
+        "date": "2024-05-15"
+      }
+    ],
+    "funding": {
+      "total": 2100000,
+      "sources": [
+        {
+          "name": "Individual Contributions",
+          "amount": 1350000,
+          "type": "individual"
+        },
+        {
+          "name": "Conservative PACs",
+          "amount": 550000,
+          "type": "PAC"
+        },
+        {
+          "name": "Energy Sector PAC",
+          "amount": 200000,
+          "type": "PAC"
+        }
+      ]
+    },
+    "website": "https://roy.house.gov",
+    "email": "contact@chiproy.gov"
+  },
+  {
+    "id": "6",
+    "name": "Sarah Thompson",
+    "party": "Democratic",
+    "district_id": "TX-21",
+    "status": "future",
+    "image_url": "https://via.placeholder.com/150/0000FF/FFFFFF?text=ST",
+    "bio": "Sarah Thompson is an education advocate and former Austin City Council member running to represent Texas's 21st district. Her campaign focuses on healthcare access, public education funding, and women's reproductive rights.",
+    "voting_record": null,
+    "funding": {
+      "total": 890000,
+      "sources": [
+        {
+          "name": "Individual Contributions",
+          "amount": 590000,
+          "type": "individual"
+        },
+        {
+          "name": "Education PAC",
+          "amount": 200000,
+          "type": "PAC"
+        },
+        {
+          "name": "Healthcare Workers PAC",
+          "amount": 100000,
+          "type": "PAC"
+        }
+      ]
+    },
+    "website": "https://thompsonfortexas.com",
+    "email": "info@thompsonfortexas.com"
+  }
+]
