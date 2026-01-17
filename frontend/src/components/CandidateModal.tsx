@@ -27,12 +27,12 @@ const CandidateModal: React.FC<CandidateModalProps> = ({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4"
         onClick={onClose}
       >
         {/* Modal */}
         <div
-          className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative"
           onClick={(e) => e.stopPropagation()}
         >
           {isLoading ? (
@@ -43,15 +43,11 @@ const CandidateModal: React.FC<CandidateModalProps> = ({
             </div>
           ) : candidate ? (
             <>
-              {/* Header */}
-              <div className="relative">
-                <div
-                  className="h-32"
-                  style={{ backgroundColor: partyBgColor }}
-                />
+              {/* Close Button */}
+              <div className="flex justify-end p-4">
                 <button
                   onClick={onClose}
-                  className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 bg-white rounded-full p-2"
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
                   aria-label="Close modal"
                 >
                   <svg
@@ -68,155 +64,224 @@ const CandidateModal: React.FC<CandidateModalProps> = ({
                     />
                   </svg>
                 </button>
+              </div>
 
-                {/* Profile Section */}
-                <div className="px-6 pb-6">
-                  <div className="flex items-start gap-4 -mt-12">
+              {/* Top Section: Image and Basic Info */}
+              <div className="px-8 pb-6">
+                <div className="flex gap-6">
+                  {/* Image on leftmost corner */}
+                  <div className="flex-shrink-0">
                     <img
                       src={candidate.image_url}
                       alt={candidate.name}
-                      className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover"
+                      className="w-32 h-32 rounded-lg object-cover shadow-lg"
                     />
-                    <div className="mt-12 flex-1">
-                      <h2 className="text-2xl font-bold text-gray-900">
-                        {candidate.name}
-                      </h2>
-                      <div className="flex gap-2 mt-2">
-                        <span
-                          className="px-3 py-1 rounded-full text-sm font-medium"
-                          style={{
-                            backgroundColor: partyBgColor,
-                            color: partyColor,
-                          }}
-                        >
-                          {candidate.party}
+                  </div>
+
+                  {/* Three rows of information */}
+                  <div className="flex-1 flex flex-col justify-center space-y-3">
+                    {/* Row 1: Name */}
+                    <h2 className="text-3xl font-bold text-gray-900">
+                      {candidate.name}
+                    </h2>
+
+                    {/* Row 2: Political Affiliation */}
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="px-4 py-1.5 rounded-full text-sm font-semibold"
+                        style={{
+                          backgroundColor: partyBgColor,
+                          color: partyColor,
+                        }}
+                      >
+                        {candidate.party}
+                      </span>
+                      {candidate.status === 'current' && (
+                        <span className="px-4 py-1.5 rounded-full text-sm font-semibold bg-green-100 text-green-800">
+                          Current Representative
                         </span>
-                        {candidate.status === 'current' && (
-                          <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                            Current Representative
-                          </span>
-                        )}
-                      </div>
+                      )}
+                    </div>
+
+                    {/* Row 3: Highlights */}
+                    <div className="bg-blue-50 border-l-4 border-blue-500 p-3 rounded">
+                      <p className="text-sm font-semibold text-blue-900 mb-1">Key Highlights</p>
+                      <p className="text-sm text-blue-800">
+                        {candidate.bio.split('.')[0]}.
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Content */}
-              <div className="px-6 pb-6 space-y-6">
-                {/* Bio */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Biography
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    {candidate.bio}
-                  </p>
-                </div>
+              {/* Divider */}
+              <div className="border-t border-gray-200 mx-8"></div>
 
-                {/* Contact */}
-                {(candidate.website || candidate.email) && (
+              {/* Bottom Section: Two Columns */}
+              <div className="px-8 py-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left Column: Current Policies */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      Contact
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">
+                      Current Policies
                     </h3>
-                    <div className="space-y-1">
-                      {candidate.website && (
-                        <p className="text-sm">
-                          <span className="text-gray-600">Website:</span>{' '}
-                          <a
-                            href={candidate.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline"
-                          >
-                            {candidate.website}
-                          </a>
-                        </p>
-                      )}
-                      {candidate.email && (
-                        <p className="text-sm">
-                          <span className="text-gray-600">Email:</span>{' '}
-                          <a
-                            href={`mailto:${candidate.email}`}
-                            className="text-blue-600 hover:underline"
-                          >
-                            {candidate.email}
-                          </a>
-                        </p>
-                      )}
+
+                    {/* Biography/Platform */}
+                    <div className="mb-6">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-2 uppercase">
+                        Platform
+                      </h4>
+                      <p className="text-gray-700 leading-relaxed text-sm">
+                        {candidate.bio}
+                      </p>
                     </div>
-                  </div>
-                )}
 
-                {/* Campaign Funding */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Campaign Funding
-                  </h3>
-                  <p className="text-2xl font-bold text-gray-900 mb-3">
-                    ${candidate.funding.total.toLocaleString()}
-                  </p>
-                  <div className="space-y-2">
-                    {candidate.funding.sources.map((source, index) => (
-                      <div
-                        key={index}
-                        className="flex justify-between items-center bg-gray-50 p-3 rounded"
-                      >
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {source.name}
-                          </p>
-                          <p className="text-xs text-gray-500 uppercase">
-                            {source.type}
-                          </p>
+                    {/* Voting Record */}
+                    {candidate.voting_record && candidate.voting_record.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-700 mb-2 uppercase">
+                          Recent Votes
+                        </h4>
+                        <div className="space-y-2">
+                          {candidate.voting_record.map((vote, index) => (
+                            <div
+                              key={index}
+                              className="bg-gray-50 border border-gray-200 rounded p-3"
+                            >
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex-1">
+                                  <p className="font-medium text-gray-900 text-sm">
+                                    {vote.bill_name}
+                                  </p>
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {vote.bill_id} • {vote.date}
+                                  </p>
+                                </div>
+                                <span
+                                  className={`px-2 py-1 rounded text-xs font-bold uppercase flex-shrink-0 ${
+                                    vote.vote === 'yes'
+                                      ? 'bg-green-100 text-green-800'
+                                      : vote.vote === 'no'
+                                      ? 'bg-red-100 text-red-800'
+                                      : 'bg-gray-100 text-gray-800'
+                                  }`}
+                                >
+                                  {vote.vote}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                        <p className="font-semibold text-gray-900">
-                          ${source.amount.toLocaleString()}
-                        </p>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    )}
 
-                {/* Voting Record */}
-                {candidate.voting_record && candidate.voting_record.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      Recent Voting Record
+                    {/* Contact Information */}
+                    {(candidate.website || candidate.email) && (
+                      <div className="mt-6">
+                        <h4 className="text-sm font-semibold text-gray-700 mb-2 uppercase">
+                          Contact
+                        </h4>
+                        <div className="space-y-1">
+                          {candidate.website && (
+                            <p className="text-sm">
+                              <span className="text-gray-600">Website:</span>{' '}
+                              <a
+                                href={candidate.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline"
+                              >
+                                {candidate.website}
+                              </a>
+                            </p>
+                          )}
+                          {candidate.email && (
+                            <p className="text-sm">
+                              <span className="text-gray-600">Email:</span>{' '}
+                              <a
+                                href={`mailto:${candidate.email}`}
+                                className="text-blue-600 hover:underline"
+                              >
+                                {candidate.email}
+                              </a>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right Column: Impact of Policies (Box) */}
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-6 shadow-md">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">
+                      Impact of Policies
                     </h3>
-                    <div className="space-y-2">
-                      {candidate.voting_record.map((vote, index) => (
-                        <div
-                          key={index}
-                          className="border border-gray-200 rounded p-3"
-                        >
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900">
-                                {vote.bill_name}
-                              </p>
-                              <p className="text-xs text-gray-500 mt-1">
-                                {vote.bill_id} • {vote.date}
+
+                    {/* Campaign Funding Impact */}
+                    <div className="mb-6">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase">
+                        Campaign Funding
+                      </h4>
+                      <div className="bg-white rounded-lg p-4 shadow-sm mb-3">
+                        <p className="text-2xl font-bold text-gray-900">
+                          ${candidate.funding.total.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">Total Raised</p>
+                      </div>
+                      <div className="space-y-2">
+                        {candidate.funding.sources.map((source, index) => (
+                          <div
+                            key={index}
+                            className="bg-white rounded p-3 shadow-sm"
+                          >
+                            <div className="flex justify-between items-center">
+                              <div className="flex-1">
+                                <p className="font-medium text-gray-900 text-sm">
+                                  {source.name}
+                                </p>
+                                <p className="text-xs text-gray-500 uppercase">
+                                  {source.type}
+                                </p>
+                              </div>
+                              <p className="font-semibold text-gray-900 text-sm">
+                                ${source.amount.toLocaleString()}
                               </p>
                             </div>
-                            <span
-                              className={`px-2 py-1 rounded text-xs font-semibold uppercase ${
-                                vote.vote === 'yes'
-                                  ? 'bg-green-100 text-green-800'
-                                  : vote.vote === 'no'
-                                  ? 'bg-red-100 text-red-800'
-                                  : 'bg-gray-100 text-gray-800'
-                              }`}
-                            >
-                              {vote.vote}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Key Statistics */}
+                    <div className="bg-white rounded-lg p-4 shadow-sm">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase">
+                        Key Statistics
+                      </h4>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+                          <span className="text-sm text-gray-600">Funding Sources</span>
+                          <span className="text-sm font-semibold text-gray-900">
+                            {candidate.funding.sources.length}
+                          </span>
+                        </div>
+                        {candidate.voting_record && (
+                          <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+                            <span className="text-sm text-gray-600">Recorded Votes</span>
+                            <span className="text-sm font-semibold text-gray-900">
+                              {candidate.voting_record.length}
                             </span>
                           </div>
+                        )}
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Status</span>
+                          <span className="text-sm font-semibold text-gray-900 capitalize">
+                            {candidate.status}
+                          </span>
                         </div>
-                      ))}
+                      </div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             </>
           ) : (

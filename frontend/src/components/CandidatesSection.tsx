@@ -1,18 +1,17 @@
 /**
  * CandidatesSection Component - Section showing district information and candidates
  */
-import React, { useState } from 'react';
+import React from 'react';
 import { useDistrict, useDistrictCandidates } from '../hooks/useDistricts';
 import CandidateCard from './CandidateCard';
-import CandidateModal from './CandidateModal';
 import { Candidate } from '../types';
 
 interface CandidatesSectionProps {
   districtId: string | null;
+  onCandidateClick: (candidateId: string) => void;
 }
 
-const CandidatesSection: React.FC<CandidatesSectionProps> = ({ districtId }) => {
-  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
+const CandidatesSection: React.FC<CandidatesSectionProps> = ({ districtId, onCandidateClick }) => {
   const { data: district, isLoading: districtLoading } = useDistrict(districtId);
   const { data: candidates, isLoading: candidatesLoading } = useDistrictCandidates(districtId);
 
@@ -76,57 +75,72 @@ const CandidatesSection: React.FC<CandidatesSectionProps> = ({ districtId }) => 
             </div>
           )}
 
-          {/* Candidates */}
+          {/* Candidates - Two Column Layout */}
           <div>
             {candidatesLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-48 bg-gray-200 rounded-lg animate-pulse" />
-                ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div className="h-10 bg-gray-200 rounded w-1/2 animate-pulse mb-4" />
+                  <div className="h-48 bg-gray-200 rounded-lg animate-pulse" />
+                </div>
+                <div className="space-y-4">
+                  <div className="h-10 bg-gray-200 rounded w-1/2 animate-pulse mb-4" />
+                  <div className="h-48 bg-gray-200 rounded-lg animate-pulse" />
+                </div>
               </div>
             ) : (
               <>
-                {/* Current Representatives */}
-                {currentCandidates.length > 0 && (
-                  <div className="mb-10">
-                    <h3 className="text-2xl font-semibold mb-6 text-gray-900">
-                      Current Representative{currentCandidates.length > 1 ? 's' : ''}
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {currentCandidates.map((candidate: Candidate) => (
-                        <CandidateCard
-                          key={candidate.id}
-                          candidate={candidate}
-                          onClick={() => setSelectedCandidateId(candidate.id)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Future Candidates */}
-                {futureCandidates.length > 0 && (
-                  <div>
-                    <h3 className="text-2xl font-semibold mb-6 text-gray-900">
-                      Candidates
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {futureCandidates.map((candidate: Candidate) => (
-                        <CandidateCard
-                          key={candidate.id}
-                          candidate={candidate}
-                          onClick={() => setSelectedCandidateId(candidate.id)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {candidates?.length === 0 && (
+                {candidates?.length === 0 ? (
                   <div className="text-center py-16 bg-gray-50 rounded-lg">
                     <p className="text-lg text-gray-500">
                       No candidates found for this district
                     </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Left Column: Current in Office */}
+                    <div>
+                      <h3 className="text-2xl font-semibold mb-6 text-gray-900 border-b-2 border-blue-600 pb-2">
+                        Current in Office
+                      </h3>
+                      {currentCandidates.length > 0 ? (
+                        <div className="space-y-4">
+                          {currentCandidates.map((candidate: Candidate) => (
+                            <CandidateCard
+                              key={candidate.id}
+                              candidate={candidate}
+                              onClick={() => onCandidateClick(candidate.id)}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8 bg-gray-50 rounded-lg">
+                          <p className="text-gray-500">No current representative</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right Column: Future Candidates */}
+                    <div>
+                      <h3 className="text-2xl font-semibold mb-6 text-gray-900 border-b-2 border-green-600 pb-2">
+                        Future Candidates
+                      </h3>
+                      {futureCandidates.length > 0 ? (
+                        <div className="space-y-4">
+                          {futureCandidates.map((candidate: Candidate) => (
+                            <CandidateCard
+                              key={candidate.id}
+                              candidate={candidate}
+                              onClick={() => onCandidateClick(candidate.id)}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8 bg-gray-50 rounded-lg">
+                          <p className="text-gray-500">No future candidates</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </>
@@ -134,12 +148,6 @@ const CandidatesSection: React.FC<CandidatesSectionProps> = ({ districtId }) => 
           </div>
         </div>
       </div>
-
-      {/* Candidate Modal */}
-      <CandidateModal
-        candidateId={selectedCandidateId}
-        onClose={() => setSelectedCandidateId(null)}
-      />
     </>
   );
 };

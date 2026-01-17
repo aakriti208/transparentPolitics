@@ -4,6 +4,7 @@ import Header from './components/Header';
 import MapView from './components/MapView';
 import ContactUs from './components/ContactUs';
 import CandidatesSection from './components/CandidatesSection';
+import CandidateModal from './components/CandidateModal';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,6 +18,7 @@ const queryClient = new QueryClient({
 function App() {
   const [activeTab, setActiveTab] = useState<'map' | 'contact'>('map');
   const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(null);
+  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const candidatesSectionRef = useRef<HTMLDivElement>(null);
 
   const handleDistrictClick = (districtId: string) => {
@@ -52,13 +54,22 @@ function App() {
 
             {/* Candidates Section */}
             <div ref={candidatesSectionRef}>
-              <CandidatesSection districtId={selectedDistrictId} />
+              <CandidatesSection
+                districtId={selectedDistrictId}
+                onCandidateClick={setSelectedCandidateId}
+              />
             </div>
           </>
         ) : (
           <ContactUs />
         )}
       </div>
+
+      {/* Candidate Modal - At app level to overlay everything */}
+      <CandidateModal
+        candidateId={selectedCandidateId}
+        onClose={() => setSelectedCandidateId(null)}
+      />
     </QueryClientProvider>
   );
 }
