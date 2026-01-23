@@ -1,214 +1,353 @@
 # Deployment Guide for Transparent Politics
 
-This guide covers deploying the Transparent Politics application to an Ubuntu server on AWS with the domain `www.transparentpolitics.us`.
+This guide covers building the application **locally on your machine** and deploying it to an Ubuntu server on AWS with the domain `www.transparentpolitics.us`.
+
+**Key Strategy:** Build the frontend on your local machine (fast), then transfer only the built files to the server (no need to build on server).
+
+---
 
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
-2. [AWS EC2 Setup](#aws-ec2-setup)
-3. [Domain Configuration](#domain-configuration)
-4. [Server Initial Setup](#server-initial-setup)
-5. [File Transfer via SSH](#file-transfer-via-ssh)
-6. [Backend Deployment](#backend-deployment)
-7. [Frontend Deployment](#frontend-deployment)
-8. [Nginx Configuration](#nginx-configuration)
-9. [SSL Certificate Setup](#ssl-certificate-setup)
-10. [Final Steps](#final-steps)
+2. [Part A: Local Build Process](#part-a-local-build-process)
+3. [Part B: AWS Server Setup](#part-b-aws-server-setup)
+4. [Part C: Deploy to Server](#part-c-deploy-to-server)
+5. [Part D: Configure Services](#part-d-configure-services)
+6. [Verification & Testing](#verification--testing)
+7. [Updating the Application](#updating-the-application)
+8. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Prerequisites
 
+**On Your Local Machine:**
+- Node.js 18.x or higher
+- npm package manager
+- SSH client (Terminal on Mac/Linux, PowerShell/PuTTY on Windows)
+
+**For AWS:**
 - AWS Account
-- Domain name: `transparentpolitics.us` registered and ready to configure
-- SSH client installed on your local machine
-- Basic knowledge of Linux commands
+- Domain `transparentpolitics.us` registered and configured
 
 ---
 
-## AWS EC2 Setup
+# Part A: Local Build Process
 
-### 1. Launch EC2 Instance
+## Step 1: Build Frontend Locally
 
-1. Log in to AWS Console and navigate to EC2
-2. Click "Launch Instance"
-3. Configure the instance:
-   - **Name**: `transparent-politics-server`
-   - **OS**: Ubuntu Server 22.04 LTS (64-bit)
-   - **Instance Type**: t2.medium (or t2.small for testing)
-   - **Key Pair**: Create new key pair or use existing
+### 1.1 Navigate to Frontend Directory
+
+```bash
+cd /Users/aakritidhakal/Documents/Projects/transparentPolitics/frontend
+```
+
+### 1.2 Create Production Environment File
+
+Create `frontend/.env.production`:
+
+```bash
+nano .env.production
+```
+
+Add this content:
+```env
+REACT_APP_API_URL=https://www.transparentpolitics.us/api/v1
+```
+
+Save and exit (Ctrl+X, Y, Enter).
+
+### 1.3 Install Dependencies (if not already done)
+
+```bash
+npm install
+```
+
+### 1.4 Build the Application
+
+```bash
+npm run build
+```
+
+**Expected output:** A `build` folder will be created containing:
+- `index.html`
+- `static/` folder with CSS, JS, and media files
+- `asset-manifest.json`
+- `manifest.json`
+
+**Build time on local machine:** 2-5 minutes (much faster than building on server!)
+
+### 1.5 Verify Build
+
+```bash
+ls -lh build/
+du -sh build/
+```
+
+You should see the build folder is around 1-5 MB in total size.
+
+**✓ Local build complete!** You now have production-ready static files.
+
+---
+
+# Part B: AWS Server Setup
+
+## Step 2: Launch EC2 Instance
+
+### 2.1 Create EC2 Instance
+
+1. Log in to AWS Console → EC2
+2. Click **Launch Instance**
+3. Configure:
+   - **Name:** `transparent-politics-server`
+   - **OS:** Ubuntu Server 22.04 LTS (64-bit x86)
+   - **Instance Type:** `t2.small` (recommended) or `t2.medium`
+   - **Key Pair:** Create new or use existing
      - Name: `transparent-politics-key`
      - Type: RSA
-     - Format: .pem
-     - Download and save securely
-   - **Network Settings**:
-     - Allow SSH (port 22) from your IP
-     - Allow HTTP (port 80) from anywhere
-     - Allow HTTPS (port 443) from anywhere
-   - **Storage**: 20-30 GB gp3
-4. Launch the instance
+     - Format: `.pem`
+     - **Download and save securely**
 
-### 2. Configure Security Group
+### 2.2 Configure Security Group
 
-Ensure the following inbound rules are set:
-```
-Type            Protocol    Port Range    Source
-SSH             TCP         22            Your IP/0.0.0.0/0
-HTTP            TCP         80            0.0.0.0/0
-HTTPS           TCP         443           0.0.0.0/0
-Custom TCP      TCP         8000          127.0.0.1/32 (backend - localhost only)
-```
+Add these **Inbound Rules**:
 
-### 3. Allocate Elastic IP
+| Type       | Protocol | Port | Source      | Description       |
+|------------|----------|------|-------------|-------------------|
+| SSH        | TCP      | 22   | Your IP     | SSH access        |
+| HTTP       | TCP      | 80   | 0.0.0.0/0   | Web traffic       |
+| HTTPS      | TCP      | 443  | 0.0.0.0/0   | Secure web traffic|
 
-1. Go to "Elastic IPs" in EC2 console
-2. Click "Allocate Elastic IP address"
-3. Associate it with your EC2 instance
-4. Note the IP address for DNS configuration
+4. Click **Launch Instance**
+
+### 2.3 Allocate Elastic IP
+
+1. Go to **Elastic IPs** in EC2 console
+2. Click **Allocate Elastic IP address**
+3. Click **Associate Elastic IP address**
+4. Select your instance
+5. **Note the Elastic IP** - you'll need it for DNS and SSH
+
+**Example:** `54.123.45.67`
 
 ---
 
-## Domain Configuration
+## Step 3: Configure Domain DNS
 
-### Configure DNS Records
+Go to your domain registrar (GoDaddy, Namecheap, etc.) and add these DNS records:
 
-Add the following DNS records in your domain registrar (e.g., GoDaddy, Namecheap):
+| Type | Name | Value              | TTL |
+|------|------|--------------------|-----|
+| A    | @    | [Your Elastic IP]  | 600 |
+| A    | www  | [Your Elastic IP]  | 600 |
 
+**DNS Propagation:** Wait 15-30 minutes (can take up to 24 hours).
+
+Verify with:
+```bash
+nslookup www.transparentpolitics.us
 ```
-Type    Name    Value                       TTL
-A       @       [Your Elastic IP]           600
-A       www     [Your Elastic IP]           600
-```
-
-Wait for DNS propagation (can take 5 minutes to 48 hours, typically 15-30 minutes).
-
-Verify with: `nslookup www.transparentpolitics.us`
 
 ---
 
-## Server Initial Setup
+## Step 4: Initial Server Setup
 
-### 1. Connect to Server
+### 4.1 Connect to Server
 
 ```bash
 chmod 400 transparent-politics-key.pem
-ssh -i transparent-politics-key.pem ubuntu@[ELASTIC_IP]
+ssh -i transparent-politics-key.pem ubuntu@[YOUR_ELASTIC_IP]
 ```
 
-### 2. Update System
+Replace `[YOUR_ELASTIC_IP]` with your actual IP.
+
+### 4.2 Update System
 
 ```bash
 sudo apt update
 sudo apt upgrade -y
 ```
 
-### 3. Install Required Software
+### 4.3 Install Required Software
 
 ```bash
 # Install Python 3.11
 sudo apt install -y python3.11 python3.11-venv python3-pip
 
-# Install Node.js 18.x
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt install -y nodejs
-
-# Install Nginx
+# Install Nginx (web server)
 sudo apt install -y nginx
 
 # Install other utilities
 sudo apt install -y git curl ufw
+
+# Verify installations
+python3.11 --version
+nginx -v
 ```
 
-### 4. Configure Firewall
+### 4.4 Configure Firewall
 
 ```bash
 sudo ufw allow OpenSSH
 sudo ufw allow 'Nginx Full'
-sudo ufw enable
+sudo ufw --force enable
+sudo ufw status
 ```
 
-### 5. Create Application Directory
+### 4.5 Create Application Directory
 
 ```bash
 sudo mkdir -p /var/www/transparentpolitics
 sudo chown -R ubuntu:ubuntu /var/www/transparentpolitics
-```
-
----
-
-## File Transfer via SSH
-
-### Method 1: SCP (Secure Copy)
-
-From your local machine (in the project directory):
-
-```bash
-# Transfer backend
-scp -i transparent-politics-key.pem -r backend ubuntu@[ELASTIC_IP]:/var/www/transparentpolitics/
-
-# Transfer frontend
-scp -i transparent-politics-key.pem -r frontend ubuntu@[ELASTIC_IP]:/var/www/transparentpolitics/
-
-# Transfer specific files
-scp -i transparent-politics-key.pem README.md ubuntu@[ELASTIC_IP]:/var/www/transparentpolitics/
-```
-
-### Method 2: SFTP (Interactive)
-
-```bash
-sftp -i transparent-politics-key.pem ubuntu@[ELASTIC_IP]
-# Then use SFTP commands:
 cd /var/www/transparentpolitics
-put -r backend
-put -r frontend
-exit
-```
-
-### Method 3: rsync (Recommended for updates)
-
-```bash
-# Sync backend
-rsync -avz -e "ssh -i transparent-politics-key.pem" \
-  --exclude='venv' --exclude='__pycache__' --exclude='.env' \
-  backend/ ubuntu@[ELASTIC_IP]:/var/www/transparentpolitics/backend/
-
-# Sync frontend
-rsync -avz -e "ssh -i transparent-politics-key.pem" \
-  --exclude='node_modules' --exclude='build' --exclude='.env' \
-  frontend/ ubuntu@[ELASTIC_IP]:/var/www/transparentpolitics/frontend/
 ```
 
 ---
 
-## Backend Deployment
+# Part C: Deploy to Server
 
-### 1. SSH into Server
+## Step 5: Transfer Built Files
+
+You can use FileZilla (GUI) or command-line tools to transfer files. Choose the method you prefer.
+
+### Method A: Using FileZilla (Recommended for beginners)
+
+#### 5.1 Install FileZilla
+
+Download from: https://filezilla-project.org/download.php?type=client
+
+#### 5.2 Configure SFTP Connection
+
+1. Open FileZilla
+2. Go to **File → Site Manager** (or press Ctrl+S / Cmd+S)
+3. Click **New Site** button
+4. Configure the connection:
+   - **Protocol:** SFTP - SSH File Transfer Protocol
+   - **Host:** [YOUR_ELASTIC_IP] (e.g., 54.123.45.67)
+   - **Port:** 22
+   - **Logon Type:** Key file
+   - **User:** ubuntu
+   - **Key file:** Browse and select your `transparent-politics-key.pem` file
+5. Click **Connect**
+
+**Note:** If FileZilla asks to convert the `.pem` file to `.ppk` format, click Yes and save it.
+
+#### 5.3 Transfer Frontend Build Files
+
+Once connected:
+
+**Left side (Local):** Navigate to:
+```
+/Users/aakritidhakal/Documents/Projects/transparentPolitics/frontend/
+```
+
+**Right side (Remote):** Navigate to:
+```
+/var/www/transparentpolitics/
+```
+
+**Transfer steps:**
+1. On the left side, find the `build` folder inside `frontend/`
+2. Right-click on the `build` folder
+3. Select **Upload** or drag it to the right side
+4. Wait for the transfer to complete
+5. On the right side, rename `build` to `frontend-build` (right-click → Rename)
+
+#### 5.4 Transfer Backend Files
+
+**Left side (Local):** Navigate to:
+```
+/Users/aakritidhakal/Documents/Projects/transparentPolitics/
+```
+
+**Right side (Remote):** Should still be at:
+```
+/var/www/transparentpolitics/
+```
+
+**Transfer steps:**
+1. On the left side, find the `backend` folder
+2. Right-click on the `backend` folder
+3. Select **Upload** or drag it to the right side
+4. Wait for the transfer to complete
+
+**✓ Files transferred!** Now switch back to your SSH session.
+
+---
+
+### Method B: Using Command Line (SCP)
+
+If you prefer command-line tools, use these commands from your local machine.
+
+#### Navigate to Project Root
 
 ```bash
-ssh -i transparent-politics-key.pem ubuntu@[ELASTIC_IP]
+cd /Users/aakritidhakal/Documents/Projects/transparentPolitics
+```
+
+#### Transfer Frontend Build Files
+
+```bash
+# Transfer the built frontend
+scp -i transparent-politics-key.pem -r frontend/build ubuntu@[YOUR_ELASTIC_IP]:/var/www/transparentpolitics/frontend-build
+```
+
+**Example:**
+```bash
+scp -i transparent-politics-key.pem -r frontend/build ubuntu@54.123.45.67:/var/www/transparentpolitics/frontend-build
+```
+
+#### Transfer Backend Files
+
+```bash
+# Transfer backend (excluding virtual environment and cache)
+scp -i transparent-politics-key.pem -r backend ubuntu@[YOUR_ELASTIC_IP]:/var/www/transparentpolitics/
+```
+
+**Alternative using rsync (better for updates):**
+
+```bash
+rsync -avz -e "ssh -i transparent-politics-key.pem" \
+  --exclude='__pycache__' --exclude='.env' --exclude='*.pyc' \
+  backend/ ubuntu@[YOUR_ELASTIC_IP]:/var/www/transparentpolitics/backend/
+```
+
+**✓ Files transferred!**
+
+---
+
+## Step 6: Setup Backend on Server
+
+Return to your **SSH session** (server terminal).
+
+### 6.1 Navigate to Backend
+
+```bash
 cd /var/www/transparentpolitics/backend
 ```
 
-### 2. Create Virtual Environment
+### 6.2 Create Python Virtual Environment
 
 ```bash
 python3.11 -m venv venv
 source venv/bin/activate
 ```
 
-### 3. Install Dependencies
+You should see `(venv)` in your prompt.
+
+### 6.3 Install Python Dependencies
 
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 4. Configure Environment
+### 6.4 Create Backend Environment File
 
 ```bash
 nano .env
 ```
 
-Add the following:
+Add:
 ```env
 # API Configuration
 API_PORT=8000
@@ -217,26 +356,30 @@ API_PORT=8000
 FRONTEND_URL=https://www.transparentpolitics.us
 ```
 
-### 5. Test Backend
+Save and exit (Ctrl+X, Y, Enter).
+
+### 6.5 Test Backend
 
 ```bash
 uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Test in another terminal:
+Open another terminal and SSH in again, then test:
 ```bash
 curl http://127.0.0.1:8000/health
 ```
 
-Press Ctrl+C to stop.
+You should see a response like `{"status":"healthy"}`.
 
-### 6. Create Systemd Service
+Press Ctrl+C in the first terminal to stop the test server.
+
+### 6.6 Create Systemd Service for Backend
 
 ```bash
 sudo nano /etc/systemd/system/transparentpolitics-api.service
 ```
 
-Add:
+Paste this content:
 ```ini
 [Unit]
 Description=Transparent Politics FastAPI Application
@@ -248,7 +391,7 @@ User=ubuntu
 Group=ubuntu
 WorkingDirectory=/var/www/transparentpolitics/backend
 Environment="PATH=/var/www/transparentpolitics/backend/venv/bin"
-ExecStart=/var/www/transparentpolitics/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 4
+ExecStart=/var/www/transparentpolitics/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 2
 Restart=always
 RestartSec=10
 
@@ -256,7 +399,9 @@ RestartSec=10
 WantedBy=multi-user.target
 ```
 
-### 7. Start Backend Service
+Save and exit.
+
+### 6.7 Start Backend Service
 
 ```bash
 sudo systemctl daemon-reload
@@ -265,65 +410,25 @@ sudo systemctl start transparentpolitics-api
 sudo systemctl status transparentpolitics-api
 ```
 
-### 8. Check Logs
+You should see "active (running)" in green.
 
-```bash
-sudo journalctl -u transparentpolitics-api -f
-```
+To exit the status view, press `q`.
 
 ---
 
-## Frontend Deployment
+# Part D: Configure Services
 
-### 1. Build Frontend
+## Step 7: Configure Nginx
 
-On the server:
-
-```bash
-cd /var/www/transparentpolitics/frontend
-```
-
-### 2. Configure Environment
-
-```bash
-nano .env
-```
-
-Add:
-```env
-REACT_APP_API_URL=https://www.transparentpolitics.us/api/v1
-```
-
-### 3. Install Dependencies and Build
-
-```bash
-npm install
-npm run build
-```
-
-This creates a `build` directory with production-ready static files.
-
-### 4. Verify Build
-
-```bash
-ls -la build/
-```
-
-You should see `index.html`, `static/`, etc.
-
----
-
-## Nginx Configuration
-
-### 1. Create Nginx Configuration
+### 7.1 Create Nginx Configuration
 
 ```bash
 sudo nano /etc/nginx/sites-available/transparentpolitics
 ```
 
-Add:
+Paste this configuration:
 ```nginx
-# Redirect HTTP to HTTPS
+# Redirect HTTP to HTTPS (after SSL setup)
 server {
     listen 80;
     listen [::]:80;
@@ -331,44 +436,16 @@ server {
 
     # For Let's Encrypt certificate validation
     location /.well-known/acme-challenge/ {
-        root /var/www/transparentpolitics/frontend/build;
+        root /var/www/transparentpolitics/frontend-build;
     }
 
-    # Redirect all other traffic to HTTPS
-    location / {
-        return 301 https://www.transparentpolitics.us$request_uri;
-    }
-}
-
-# HTTPS Configuration (will be updated after SSL setup)
-server {
-    listen 443 ssl http2;
-    listen [::]:443 ssl http2;
-    server_name transparentpolitics.us www.transparentpolitics.us;
-
-    # SSL certificates (will be added by Certbot)
-    # ssl_certificate /etc/letsencrypt/live/www.transparentpolitics.us/fullchain.pem;
-    # ssl_certificate_key /etc/letsencrypt/live/www.transparentpolitics.us/privkey.pem;
-
-    # SSL configuration
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_prefer_server_ciphers on;
-    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
-
-    # Root directory for React build
-    root /var/www/transparentpolitics/frontend/build;
+    # Temporarily serve the site (will redirect to HTTPS after SSL setup)
+    root /var/www/transparentpolitics/frontend-build;
     index index.html;
 
-    # Gzip compression
-    gzip on;
-    gzip_vary on;
-    gzip_min_length 1024;
-    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss application/json application/javascript;
-
-    # Security headers
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
 
     # API proxy
     location /api/ {
@@ -382,46 +459,27 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
     }
-
-    # Static files caching
-    location /static/ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-
-    # React Router support - serve index.html for all routes
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # Favicon
-    location = /favicon.ico {
-        log_not_found off;
-        access_log off;
-    }
-
-    # Robots.txt
-    location = /robots.txt {
-        log_not_found off;
-        access_log off;
-    }
 }
 ```
 
-### 2. Enable Configuration
+Save and exit.
+
+### 7.2 Enable the Configuration
 
 ```bash
+# Remove default configuration
+sudo rm /etc/nginx/sites-enabled/default
+
+# Enable our configuration
 sudo ln -s /etc/nginx/sites-available/transparentpolitics /etc/nginx/sites-enabled/
-sudo rm /etc/nginx/sites-enabled/default  # Remove default config
-```
 
-### 3. Test Nginx Configuration
-
-```bash
+# Test configuration
 sudo nginx -t
 ```
 
-### 4. Restart Nginx
+You should see "test is successful".
+
+### 7.3 Start Nginx
 
 ```bash
 sudo systemctl restart nginx
@@ -430,58 +488,61 @@ sudo systemctl status nginx
 
 ---
 
-## SSL Certificate Setup
+## Step 8: Setup SSL Certificate
 
-### 1. Install Certbot
+### 8.1 Install Certbot
 
 ```bash
 sudo apt install -y certbot python3-certbot-nginx
 ```
 
-### 2. Obtain SSL Certificate
+### 8.2 Obtain SSL Certificate
 
 ```bash
 sudo certbot --nginx -d transparentpolitics.us -d www.transparentpolitics.us
 ```
 
 Follow the prompts:
-- Enter email address
-- Agree to terms of service
-- Choose whether to redirect HTTP to HTTPS (recommended: Yes)
+1. Enter your email address
+2. Agree to terms (Y)
+3. Choose whether to share email with EFF (your choice)
+4. Certbot will automatically configure HTTPS redirect
 
-### 3. Verify SSL
+### 8.3 Verify SSL
 
 Visit: `https://www.transparentpolitics.us`
 
-### 4. Auto-renewal Setup
+Your site should now load with HTTPS!
 
-Certbot automatically sets up auto-renewal. Test it:
+### 8.4 Test Auto-Renewal
 
 ```bash
 sudo certbot renew --dry-run
 ```
 
+This verifies that auto-renewal is configured (happens automatically every 90 days).
+
 ---
 
-## Final Steps
+# Verification & Testing
 
-### 1. Verify Deployment
-
-Test the following:
+## Check All Services
 
 ```bash
-# Health check
+# Check backend
+sudo systemctl status transparentpolitics-api
+
+# Check Nginx
+sudo systemctl status nginx
+
+# Check backend API
 curl https://www.transparentpolitics.us/api/v1/health
 
-# Frontend
-curl https://www.transparentpolitics.us
-
-# Check services
-sudo systemctl status transparentpolitics-api
-sudo systemctl status nginx
+# Check frontend
+curl -I https://www.transparentpolitics.us
 ```
 
-### 2. Monitor Logs
+## View Logs
 
 ```bash
 # Backend logs
@@ -494,240 +555,244 @@ sudo tail -f /var/log/nginx/access.log
 sudo tail -f /var/log/nginx/error.log
 ```
 
-### 3. Set Up Log Rotation
-
-Create log rotation config:
-
-```bash
-sudo nano /etc/logrotate.d/transparentpolitics
-```
-
-Add:
-```
-/var/www/transparentpolitics/backend/logs/*.log {
-    daily
-    missingok
-    rotate 14
-    compress
-    delaycompress
-    notifempty
-    create 0640 ubuntu ubuntu
-    sharedscripts
-}
-```
-
-### 4. Create Deployment Script
-
-For easy updates, create a deployment script:
-
-```bash
-nano /var/www/transparentpolitics/deploy.sh
-```
-
-Add:
-```bash
-#!/bin/bash
-set -e
-
-echo "Starting deployment..."
-
-# Update backend
-cd /var/www/transparentpolitics/backend
-source venv/bin/activate
-git pull  # If using git
-pip install -r requirements.txt
-sudo systemctl restart transparentpolitics-api
-
-# Update frontend
-cd /var/www/transparentpolitics/frontend
-npm install
-npm run build
-sudo systemctl reload nginx
-
-echo "Deployment completed successfully!"
-```
-
-Make executable:
-```bash
-chmod +x /var/www/transparentpolitics/deploy.sh
-```
+Press Ctrl+C to stop following logs.
 
 ---
 
-## Updating the Application
+# Updating the Application
 
-### From Local Machine (Using rsync)
+## Quick Update Process
+
+When you make changes and need to deploy:
+
+### 1. Build Locally (on your machine)
 
 ```bash
-# Sync backend
-rsync -avz -e "ssh -i transparent-politics-key.pem" \
-  --exclude='venv' --exclude='__pycache__' --exclude='.env' \
-  backend/ ubuntu@[ELASTIC_IP]:/var/www/transparentpolitics/backend/
-
-# Sync frontend
-rsync -avz -e "ssh -i transparent-politics-key.pem" \
-  --exclude='node_modules' --exclude='build' --exclude='.env' \
-  frontend/ ubuntu@[ELASTIC_IP]:/var/www/transparentpolitics/frontend/
+cd /Users/aakritidhakal/Documents/Projects/transparentPolitics/frontend
+npm run build
 ```
 
-### On Server
+### 2. Deploy Updated Files
+
+#### Option A: Using FileZilla
+
+1. Open FileZilla and connect to your server (use saved site from Site Manager)
+2. **Update Frontend:**
+   - **Left side:** Navigate to `/Users/aakritidhakal/Documents/Projects/transparentPolitics/frontend/`
+   - **Right side:** Navigate to `/var/www/transparentpolitics/`
+   - Upload the `build` folder (it will overwrite files in `frontend-build`)
+   - Or delete `frontend-build` on the server first, then upload `build` and rename it
+
+3. **Update Backend (if needed):**
+   - **Left side:** Navigate to `/Users/aakritidhakal/Documents/Projects/transparentPolitics/`
+   - **Right side:** Navigate to `/var/www/transparentpolitics/`
+   - Upload the `backend` folder (select "Overwrite" when prompted)
+
+4. **Restart Services via SSH:**
+   ```bash
+   ssh -i transparent-politics-key.pem ubuntu@[YOUR_ELASTIC_IP]
+
+   # Reload Nginx (for frontend changes)
+   sudo systemctl reload nginx
+
+   # Restart backend (if backend changed)
+   cd /var/www/transparentpolitics/backend
+   source venv/bin/activate
+   pip install -r requirements.txt  # If dependencies changed
+   sudo systemctl restart transparentpolitics-api
+   ```
+
+#### Option B: Using Command Line
 
 ```bash
-ssh -i transparent-politics-key.pem ubuntu@[ELASTIC_IP]
+# Transfer new build
+scp -i transparent-politics-key.pem -r frontend/build ubuntu@[YOUR_ELASTIC_IP]:/var/www/transparentpolitics/frontend-build-new
+
+# SSH into server
+ssh -i transparent-politics-key.pem ubuntu@[YOUR_ELASTIC_IP]
+
+# Replace old build with new build
 cd /var/www/transparentpolitics
-
-# Restart backend
-cd backend
-source venv/bin/activate
-pip install -r requirements.txt  # If dependencies changed
-sudo systemctl restart transparentpolitics-api
-
-# Rebuild frontend
-cd ../frontend
-npm install  # If dependencies changed
-npm run build
-sudo systemctl reload nginx
-```
-
----
-
-## Troubleshooting
-
-### Backend Issues
-
-```bash
-# Check if service is running
-sudo systemctl status transparentpolitics-api
-
-# View recent logs
-sudo journalctl -u transparentpolitics-api -n 100
-
-# Restart service
-sudo systemctl restart transparentpolitics-api
-
-# Check if port 8000 is in use
-sudo netstat -tlnp | grep 8000
-```
-
-### Frontend Issues
-
-```bash
-# Check Nginx status
-sudo systemctl status nginx
-
-# Test Nginx configuration
-sudo nginx -t
-
-# Check Nginx error logs
-sudo tail -n 50 /var/log/nginx/error.log
+rm -rf frontend-build-old
+mv frontend-build frontend-build-old
+mv frontend-build-new frontend-build
 
 # Reload Nginx
 sudo systemctl reload nginx
 ```
 
-### SSL Issues
+### 3. Update Backend (Command Line Method)
 
 ```bash
-# Check certificate status
+# From local machine
+rsync -avz -e "ssh -i transparent-politics-key.pem" \
+  --exclude='__pycache__' --exclude='.env' --exclude='*.pyc' \
+  backend/ ubuntu@[YOUR_ELASTIC_IP]:/var/www/transparentpolitics/backend/
+
+# On server
+ssh -i transparent-politics-key.pem ubuntu@[YOUR_ELASTIC_IP]
+cd /var/www/transparentpolitics/backend
+source venv/bin/activate
+pip install -r requirements.txt  # If dependencies changed
+sudo systemctl restart transparentpolitics-api
+```
+
+---
+
+# Troubleshooting
+
+## Backend Not Working
+
+```bash
+# Check service status
+sudo systemctl status transparentpolitics-api
+
+# View logs
+sudo journalctl -u transparentpolitics-api -n 50
+
+# Restart service
+sudo systemctl restart transparentpolitics-api
+
+# Check if port 8000 is in use
+sudo ss -tlnp | grep 8000
+```
+
+## Frontend Not Loading
+
+```bash
+# Check if build files exist
+ls -la /var/www/transparentpolitics/frontend-build/
+
+# Check Nginx status
+sudo systemctl status nginx
+
+# Check Nginx config
+sudo nginx -t
+
+# View error logs
+sudo tail -n 50 /var/log/nginx/error.log
+
+# Restart Nginx
+sudo systemctl restart nginx
+```
+
+## API Calls Failing
+
+Check the API URL in your frontend build:
+```bash
+# On your local machine before building
+cat frontend/.env.production
+```
+
+Should be: `REACT_APP_API_URL=https://www.transparentpolitics.us/api/v1`
+
+If wrong, fix it and rebuild:
+```bash
+npm run build
+# Then redeploy as described above
+```
+
+## SSL Certificate Issues
+
+```bash
+# Check certificate
 sudo certbot certificates
 
-# Renew certificate manually
+# Renew manually
 sudo certbot renew
 
 # Test renewal
 sudo certbot renew --dry-run
 ```
 
-### DNS Issues
+## DNS Not Resolving
 
 ```bash
-# Check DNS propagation
+# Check DNS
 nslookup www.transparentpolitics.us
 dig www.transparentpolitics.us
 
-# Check from external service
+# Check from different location
 # Visit: https://www.whatsmydns.net/
+```
+
+---
+
+## Common Commands Reference
+
+### FileZilla Quick Setup
+
+**Connection Settings:**
+- Protocol: SFTP
+- Host: [YOUR_ELASTIC_IP]
+- Port: 22
+- User: ubuntu
+- Key file: transparent-politics-key.pem
+
+**Important Paths:**
+- Local frontend build: `/Users/aakritidhakal/Documents/Projects/transparentPolitics/frontend/build`
+- Remote location: `/var/www/transparentpolitics/frontend-build`
+- Remote backend: `/var/www/transparentpolitics/backend`
+
+### Command Line Reference
+
+```bash
+# === File Transfer ===
+# SCP (secure copy)
+scp -i key.pem -r local/path ubuntu@IP:/remote/path
+
+# rsync (better for updates)
+rsync -avz -e "ssh -i key.pem" local/ ubuntu@IP:/remote/
+
+# === Service Management ===
+sudo systemctl start transparentpolitics-api
+sudo systemctl stop transparentpolitics-api
+sudo systemctl restart transparentpolitics-api
+sudo systemctl status transparentpolitics-api
+
+# === Nginx ===
+sudo nginx -t                    # Test config
+sudo systemctl reload nginx      # Reload config
+sudo systemctl restart nginx     # Full restart
+
+# === Logs ===
+sudo journalctl -u transparentpolitics-api -f
+sudo tail -f /var/log/nginx/access.log
+sudo tail -f /var/log/nginx/error.log
+
+# === System ===
+df -h          # Disk usage
+free -h        # Memory usage
+htop           # Process monitor
 ```
 
 ---
 
 ## Security Checklist
 
-- [ ] Firewall (UFW) is enabled and configured
-- [ ] SSH key-based authentication is used (not password)
-- [ ] SSL certificate is installed and auto-renews
-- [ ] Backend runs on localhost only (not exposed to internet)
-- [ ] Security headers are configured in Nginx
-- [ ] Regular system updates are scheduled
-- [ ] Logs are monitored and rotated
-- [ ] Environment variables are properly secured
-- [ ] CORS is properly configured in backend
+- [x] Firewall (UFW) enabled
+- [x] SSH key-based authentication
+- [x] SSL certificate installed
+- [x] Backend only accessible from localhost
+- [x] Regular security updates: `sudo apt update && sudo apt upgrade`
 
 ---
 
-## Maintenance Tasks
+## Support Resources
 
-### Weekly
-- Check application logs for errors
-- Verify SSL certificate status
-
-### Monthly
-- Update system packages: `sudo apt update && sudo apt upgrade`
-- Review security updates
-- Check disk space: `df -h`
-
-### Quarterly
-- Review and update dependencies
-- Check for security vulnerabilities
-- Backup application data
-
----
-
-## Useful Commands
-
-```bash
-# System info
-uname -a
-df -h  # Disk usage
-free -h  # Memory usage
-htop  # Process monitor
-
-# Service management
-sudo systemctl start transparentpolitics-api
-sudo systemctl stop transparentpolitics-api
-sudo systemctl restart transparentpolitics-api
-sudo systemctl status transparentpolitics-api
-
-# Nginx
-sudo nginx -t  # Test config
-sudo systemctl reload nginx  # Reload config
-sudo systemctl restart nginx  # Full restart
-
-# Logs
-sudo journalctl -u transparentpolitics-api -f  # Follow backend logs
-sudo tail -f /var/log/nginx/access.log  # Follow Nginx access
-sudo tail -f /var/log/nginx/error.log  # Follow Nginx errors
-
-# File transfer
-scp -i transparent-politics-key.pem file.txt ubuntu@[IP]:/path/
-rsync -avz -e "ssh -i key.pem" local/ ubuntu@[IP]:/remote/
-```
-
----
-
-## Support and Documentation
-
-- FastAPI Documentation: https://fastapi.tiangolo.com/
-- Nginx Documentation: https://nginx.org/en/docs/
-- Let's Encrypt: https://letsencrypt.org/docs/
-- AWS EC2 Documentation: https://docs.aws.amazon.com/ec2/
+- **FastAPI:** https://fastapi.tiangolo.com/
+- **Nginx:** https://nginx.org/en/docs/
+- **Let's Encrypt:** https://letsencrypt.org/
+- **AWS EC2:** https://docs.aws.amazon.com/ec2/
 
 ---
 
 ## Notes
 
-- Replace `[ELASTIC_IP]` with your actual Elastic IP address throughout this guide
-- Store your SSH key securely and never commit it to version control
-- Regularly backup your data and configuration files
-- Monitor your AWS costs and set up billing alerts
-- Consider setting up CloudWatch for advanced monitoring
+- Always replace `[YOUR_ELASTIC_IP]` with your actual Elastic IP address
+- Store your SSH key securely (never commit to version control)
+- The key file path is: `transparent-politics-key.pem`
+- Build locally to save time and server resources
+- Backend runs on localhost:8000 (not exposed to internet)
+- Frontend is served as static files by Nginx
+- All traffic goes through Nginx on ports 80/443
