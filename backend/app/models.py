@@ -65,3 +65,16 @@ class CandidateSummary(BaseModel):
     district_id: str
     status: Literal["current", "future"]
     image_url: str
+
+
+class ContactRequest(BaseModel):
+    """Contact form submission request"""
+    name: str = Field(..., min_length=1, max_length=100)
+    email: str = Field(..., pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$')
+    message: str = Field(..., min_length=1, max_length=2000)
+
+
+class ContactResponse(BaseModel):
+    """Contact form submission response"""
+    success: bool
+    message: str
