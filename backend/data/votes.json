@@ -1,0 +1,98 @@
+[
+  {
+    "vote_id": 1,
+    "bill_id": 1,
+    "candidate_id": "1",
+    "vote_choice": "Yes",
+    "vote_date": "2024-03-15T14:30:00Z",
+    "notes": "Strong supporter of expanding healthcare access"
+  },
+  {
+    "vote_id": 2,
+    "bill_id": 2,
+    "candidate_id": "1",
+    "vote_choice": "Yes",
+    "vote_date": "2024-05-22T15:45:00Z",
+    "notes": "Committed to addressing climate change"
+  },
+  {
+    "vote_id": 3,
+    "bill_id": 3,
+    "candidate_id": "1",
+    "vote_choice": "No",
+    "vote_date": "2024-07-10T13:20:00Z",
+    "notes": "Opposed tax cuts that benefit corporations over working families"
+  },
+  {
+    "vote_id": 4,
+    "bill_id": 4,
+    "candidate_id": "3",
+    "vote_choice": "Yes",
+    "vote_date": "2024-02-28T16:00:00Z",
+    "notes": "Lead sponsor of the Green New Deal"
+  },
+  {
+    "vote_id": 5,
+    "bill_id": 5,
+    "candidate_id": "3",
+    "vote_choice": "Yes",
+    "vote_date": "2024-04-12T14:15:00Z",
+    "notes": "Healthcare is a human right"
+  },
+  {
+    "vote_id": 6,
+    "bill_id": 6,
+    "candidate_id": "3",
+    "vote_choice": "No",
+    "vote_date": "2024-06-05T15:30:00Z",
+    "notes": "Opposed excessive military spending"
+  },
+  {
+    "vote_id": 7,
+    "bill_id": 7,
+    "candidate_id": "5",
+    "vote_choice": "Yes",
+    "vote_date": "2024-01-20T13:00:00Z",
+    "notes": "Strong advocate for border security"
+  },
+  {
+    "vote_id": 8,
+    "bill_id": 8,
+    "candidate_id": "5",
+    "vote_choice": "Yes",
+    "vote_date": "2024-03-30T14:45:00Z",
+    "notes": "Fiscal responsibility is essential"
+  },
+  {
+    "vote_id": 9,
+    "bill_id": 9,
+    "candidate_id": "5",
+    "vote_choice": "No",
+    "vote_date": "2024-05-15T16:20:00Z",
+    "notes": "Opposed excessive federal spending"
+  },
+  {
+    "vote_id": 10,
+    "bill_id": 1,
+    "candidate_id": "3",
+    "vote_choice": "Yes",
+    "vote_date": "2024-03-15T14:30:00Z",
+    "notes": "Supports expanding healthcare"
+  },
+  {
+    "vote_id": 11,
+    "bill_id": 9,
+    "candidate_id": "1",
+    "vote_choice": "Yes",
+    "vote_date": "2024-05-15T16:20:00Z",
+    "notes": "Infrastructure investment creates jobs"
+  },
+  {
+    "vote_id": 12,
+    "bill_id": 6,
+    "candidate_id": "5",
+    "vote_choice": "Yes",
+    "vote_date": "2024-06-05T15:30:00Z",
+    "notes": "Strong national defense is critical"
+  }
+]

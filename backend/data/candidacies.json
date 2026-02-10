@@ -1,0 +1,56 @@
+[
+  {
+    "candidacy_id": 1,
+    "candidate_id": "1",
+    "district_id": "CA-12",
+    "role_running_for": "U.S. Representative",
+    "election_year": 2024,
+    "is_incumbent": true,
+    "status": "Running"
+  },
+  {
+    "candidacy_id": 2,
+    "candidate_id": "2",
+    "district_id": "CA-12",
+    "role_running_for": "U.S. Representative",
+    "election_year": 2024,
+    "is_incumbent": false,
+    "status": "Running"
+  },
+  {
+    "candidacy_id": 3,
+    "candidate_id": "3",
+    "district_id": "NY-14",
+    "role_running_for": "U.S. Representative",
+    "election_year": 2024,
+    "is_incumbent": true,
+    "status": "Running"
+  },
+  {
+    "candidacy_id": 4,
+    "candidate_id": "4",
+    "district_id": "NY-14",
+    "role_running_for": "U.S. Representative",
+    "election_year": 2024,
+    "is_incumbent": false,
+    "status": "Running"
+  },
+  {
+    "candidacy_id": 5,
+    "candidate_id": "5",
+    "district_id": "TX-21",
+    "role_running_for": "U.S. Representative",
+    "election_year": 2024,
+    "is_incumbent": true,
+    "status": "Running"
+  },
+  {
+    "candidacy_id": 6,
+    "candidate_id": "6",
+    "district_id": "TX-21",
+    "role_running_for": "U.S. Representative",
+    "election_year": 2024,
+    "is_incumbent": false,
+    "status": "Running"
+  }
+]

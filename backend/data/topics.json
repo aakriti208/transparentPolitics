@@ -1,0 +1,32 @@
+[
+  {
+    "topic_id": 1,
+    "topic_name": "Healthcare",
+    "description": "Bills related to healthcare policy, insurance, and medical services"
+  },
+  {
+    "topic_id": 2,
+    "topic_name": "Climate & Environment",
+    "description": "Environmental protection, climate change, and green energy initiatives"
+  },
+  {
+    "topic_id": 3,
+    "topic_name": "Tax & Economy",
+    "description": "Tax policy, economic reforms, and fiscal responsibility"
+  },
+  {
+    "topic_id": 4,
+    "topic_name": "Defense & Security",
+    "description": "National defense, military spending, and border security"
+  },
+  {
+    "topic_id": 5,
+    "topic_name": "Infrastructure",
+    "description": "Roads, bridges, public transportation, and infrastructure development"
+  },
+  {
+    "topic_id": 6,
+    "topic_name": "Budget & Spending",
+    "description": "Federal budget, government spending, and deficit reduction"
+  }
+]

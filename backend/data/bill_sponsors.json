@@ -1,0 +1,11 @@
+[
+  {"bill_id": 1, "candidate_id": "1", "sponsor_type": "Primary"},
+  {"bill_id": 1, "candidate_id": "3", "sponsor_type": "Co-sponsor"},
+  {"bill_id": 2, "candidate_id": "1", "sponsor_type": "Co-sponsor"},
+  {"bill_id": 4, "candidate_id": "3", "sponsor_type": "Primary"},
+  {"bill_id": 5, "candidate_id": "3", "sponsor_type": "Primary"},
+  {"bill_id": 5, "candidate_id": "1", "sponsor_type": "Co-sponsor"},
+  {"bill_id": 7, "candidate_id": "5", "sponsor_type": "Primary"},
+  {"bill_id": 8, "candidate_id": "5", "sponsor_type": "Primary"},
+  {"bill_id": 9, "candidate_id": "1", "sponsor_type": "Co-sponsor"}
+]
