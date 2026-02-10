@@ -1,9 +1,11 @@
 /**
  * CandidateModal Component - Detailed candidate information modal
  */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCandidate } from '../hooks/useCandidates';
 import { getPartyColor, getPartyBgColor } from '../utils/partyColors';
+import { votesApi } from '../services/api';
+import { CandidateVote } from '../types';
 
 interface CandidateModalProps {
   candidateId: string | null;
@@ -15,13 +17,49 @@ const CandidateModal: React.FC<CandidateModalProps> = ({
   onClose,
 }) => {
   const { data: candidate, isLoading } = useCandidate(candidateId);
+  const [votes, setVotes] = useState<CandidateVote[]>([]);
+  const [votesLoading, setVotesLoading] = useState(false);
 
   const isOpen = !!candidateId;
+
+  // Fetch votes when candidate changes
+  useEffect(() => {
+    const fetchVotes = async () => {
+      if (!candidateId) return;
+
+      try {
+        setVotesLoading(true);
+        const data = await votesApi.getCandidateVotes(candidateId);
+        setVotes(data);
+      } catch (error) {
+        console.error('Error fetching votes:', error);
+        setVotes([]);
+      } finally {
+        setVotesLoading(false);
+      }
+    };
+
+    fetchVotes();
+  }, [candidateId]);
 
   if (!isOpen) return null;
 
   const partyColor = candidate ? getPartyColor(candidate.party) : '';
   const partyBgColor = candidate ? getPartyBgColor(candidate.party) : '';
+
+  // Topic color mapping (same as PolicyImpactDashboard)
+  const getTopicColor = (topic: string) => {
+    const colors: { [key: string]: string } = {
+      'Healthcare': '#3b82f6',
+      'Climate & Environment': '#10b981',
+      'Tax & Economy': '#f59e0b',
+      'Defense & Security': '#ef4444',
+      'Infrastructure': '#8b5cf6',
+      'Budget & Spending': '#06b6d4',
+      'Other': '#6b7280'
+    };
+    return colors[topic] || colors['Other'];
+  };
 
   return (
     <>
@@ -136,44 +174,112 @@ const CandidateModal: React.FC<CandidateModalProps> = ({
                       </p>
                     </div>
 
-                    {/* Voting Record */}
-                    {candidate.voting_record && candidate.voting_record.length > 0 && (
-                      <div>
-                        <h4 className="text-sm font-semibold text-gray-700 mb-2 uppercase">
-                          Recent Votes
-                        </h4>
+                    {/* Policy Impact - Voting Record */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase flex items-center justify-between">
+                        <span>Impact of Policies</span>
+                        {candidate.status === 'current' && (
+                          <span className="text-xs font-normal text-gray-500 normal-case">
+                            {votes.length} votes recorded
+                          </span>
+                        )}
+                      </h4>
+                      {votesLoading ? (
                         <div className="space-y-2">
-                          {candidate.voting_record.map((vote, index) => (
+                          <div className="h-20 bg-gray-200 rounded animate-pulse" />
+                          <div className="h-20 bg-gray-200 rounded animate-pulse" />
+                        </div>
+                      ) : votes.length > 0 ? (
+                        <div className="space-y-3">
+                          {votes.map((vote) => (
                             <div
-                              key={index}
-                              className="bg-gray-50 border border-gray-200 rounded p-3"
+                              key={vote.vote_id}
+                              className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                             >
-                              <div className="flex justify-between items-start gap-2">
-                                <div className="flex-1">
-                                  <p className="font-medium text-gray-900 text-sm">
-                                    {vote.bill_name}
-                                  </p>
-                                  <p className="text-xs text-gray-500 mt-1">
-                                    {vote.bill_id} • {vote.date}
-                                  </p>
-                                </div>
+                              {/* Topic Badge */}
+                              <div className="flex items-start justify-between gap-3 mb-2">
                                 <span
-                                  className={`px-2 py-1 rounded text-xs font-bold uppercase flex-shrink-0 ${
-                                    vote.vote === 'yes'
+                                  className="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
+                                  style={{
+                                    backgroundColor: `${getTopicColor(vote.bill.topic)}20`,
+                                    color: getTopicColor(vote.bill.topic)
+                                  }}
+                                >
+                                  {vote.bill.topic}
+                                </span>
+                                <span
+                                  className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
+                                    vote.vote_choice.toLowerCase() === 'yes'
                                       ? 'bg-green-100 text-green-800'
-                                      : vote.vote === 'no'
+                                      : vote.vote_choice.toLowerCase() === 'no'
                                       ? 'bg-red-100 text-red-800'
                                       : 'bg-gray-100 text-gray-800'
                                   }`}
                                 >
-                                  {vote.vote}
+                                  {vote.vote_choice}
                                 </span>
+                              </div>
+
+                              {/* Bill Info */}
+                              <div className="mb-2">
+                                <p className="font-semibold text-gray-900 text-sm mb-1">
+                                  {vote.bill.bill_code}
+                                </p>
+                                <p className="text-xs text-gray-600 line-clamp-2">
+                                  {vote.bill.simple_summary || vote.bill.official_title}
+                                </p>
+                              </div>
+
+                              {/* Vote Notes */}
+                              {vote.notes && (
+                                <div className="mb-2 pl-3 border-l-2 border-blue-300">
+                                  <p className="text-xs text-gray-600 italic">
+                                    "{vote.notes}"
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* Footer */}
+                              <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100">
+                                <p className="text-xs text-gray-500">
+                                  {new Date(vote.vote_date).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric'
+                                  })}
+                                </p>
+                                {vote.bill.full_text_url && (
+                                  <a
+                                    href={vote.bill.full_text_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                                  >
+                                    View Bill
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                  </a>
+                                )}
                               </div>
                             </div>
                           ))}
                         </div>
-                      </div>
-                    )}
+                      ) : candidate.status === 'current' ? (
+                        <div className="text-center py-6 bg-gray-50 rounded-lg border border-gray-200">
+                          <svg className="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <p className="text-sm text-gray-600">No voting record available</p>
+                        </div>
+                      ) : (
+                        <div className="text-center py-6 bg-blue-50 rounded-lg border border-blue-200">
+                          <p className="text-sm text-blue-700">
+                            Candidate is running for office. Voting record will be available once elected.
+                          </p>
+                        </div>
+                      )}
+                    </div>
 
                     {/* Contact Information */}
                     {(candidate.website || candidate.email) && (
@@ -264,18 +370,18 @@ const CandidateModal: React.FC<CandidateModalProps> = ({
                             {candidate.funding.sources.length}
                           </span>
                         </div>
-                        {candidate.voting_record && (
+                        {candidate.status === 'current' && (
                           <div className="flex justify-between items-center border-b border-gray-200 pb-2">
                             <span className="text-sm text-gray-600">Recorded Votes</span>
                             <span className="text-sm font-semibold text-gray-900">
-                              {candidate.voting_record.length}
+                              {votesLoading ? '...' : votes.length}
                             </span>
                           </div>
                         )}
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Status</span>
                           <span className="text-sm font-semibold text-gray-900 capitalize">
-                            {candidate.status}
+                            {candidate.status === 'current' ? 'Current Representative' : 'Running for Office'}
                           </span>
                         </div>
                       </div>

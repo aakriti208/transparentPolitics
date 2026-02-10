@@ -64,3 +64,45 @@ export type PartyColor = {
     dark: string;
   };
 };
+
+export interface Bill {
+  bill_id: number;
+  bill_code: string;
+  official_title: string;
+  simple_summary: string;
+  full_text_url: string | null;
+  status: string;
+  congress_session: number | null;
+  introduced_date: string | null;
+  vote_date: string | null;
+  vote_result_yes: number;
+  vote_result_no: number;
+  vote_result_present: number;
+  vote_result_absent: number;
+  topic: string;
+  topics: string[];
+}
+
+export interface PolicyImpact {
+  topic: string;
+  billName: string;
+  description: string;
+  voteResult: string;
+  officialLink: string;
+}
+
+export interface CandidateVote {
+  vote_id: number;
+  vote_choice: string;
+  vote_date: string;
+  notes: string | null;
+  bill: {
+    bill_id: number;
+    bill_code: string;
+    official_title: string;
+    simple_summary: string;
+    status: string;
+    topic: string;
+    full_text_url: string | null;
+  };
+}

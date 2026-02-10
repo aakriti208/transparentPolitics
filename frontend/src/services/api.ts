@@ -2,7 +2,7 @@
  * API client for Political Transparency backend
  */
 import axios from 'axios';
-import { District, Candidate } from '../types';
+import { District, Candidate, Bill, CandidateVote } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -68,6 +68,40 @@ export const contactApi = {
   submit: async (data: { name: string; email: string; message: string }) => {
     const response = await apiClient.post('/contact', data);
     console.log(response);
+    return response.data;
+  },
+};
+
+/**
+ * Bills API
+ */
+export const billsApi = {
+  /**
+   * Get all bills
+   */
+  getAll: async (): Promise<Bill[]> => {
+    const response = await apiClient.get<Bill[]>('/bills');
+    return response.data;
+  },
+
+  /**
+   * Get a specific bill by ID
+   */
+  getById: async (billId: number): Promise<Bill> => {
+    const response = await apiClient.get<Bill>(`/bills/${billId}`);
+    return response.data;
+  },
+};
+
+/**
+ * Votes API
+ */
+export const votesApi = {
+  /**
+   * Get all votes by a specific candidate
+   */
+  getCandidateVotes: async (candidateId: string): Promise<CandidateVote[]> => {
+    const response = await apiClient.get<CandidateVote[]>(`/candidates/${candidateId}/votes`);
     return response.data;
   },
 };

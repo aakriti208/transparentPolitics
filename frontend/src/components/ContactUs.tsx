@@ -170,7 +170,7 @@ const ContactUs: React.FC = () => {
           <div className="text-center">
             <div className="text-blue-600 text-2xl mb-2">📧</div>
             <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-            <p className="text-gray-600">info@transparentpolitics.com</p>
+            <p className="text-gray-600">ttransparentpolitics@gmail.com</p>
           </div>
           <div className="text-center">
             <div className="text-blue-600 text-2xl mb-2">📍</div>

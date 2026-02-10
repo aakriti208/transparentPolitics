@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     SMTP_USERNAME: str = ""
     SMTP_PASSWORD: str = ""
     SMTP_FROM_EMAIL: str = ""
-    SMTP_TO_EMAIL: str = "info@transparentpolitics.com"
+    SMTP_TO_EMAIL: str = "ttransparentpolitics@gmail.com"
 
     @property
     def ALLOWED_ORIGINS(self) -> List[str]:

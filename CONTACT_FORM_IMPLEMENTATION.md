@@ -1,34 +1,41 @@
 # Contact Form Implementation Summary
 
 ## Overview
-The contact form functionality has been successfully implemented. Users can now submit messages through the Contact Us page, which will be sent via email to info@transparentpolitics.com.
+
+The contact form functionality has been successfully implemented. Users can now submit messages through the Contact Us page, which will be sent via email to ttransparentpolitics@gmail.com.
 
 ## What Has Been Implemented
 
 ### Backend (7 files modified/created)
 
 #### 1. **backend/requirements.txt**
+
 - Added `aiosmtplib==3.0.2` for async email sending
 
 #### 2. **backend/.env**
+
 - Added SMTP configuration variables
 - Includes placeholders for Gmail credentials
 
 #### 3. **backend/.env.example**
+
 - Added SMTP configuration template with setup instructions
 - Documents how to get Gmail App Password
 
 #### 4. **backend/app/config.py**
+
 - Added SMTP settings to `Settings` class:
   - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`
   - `SMTP_FROM_EMAIL`, `SMTP_TO_EMAIL`
 
 #### 5. **backend/app/models.py**
+
 - Added `ContactRequest` model for form submissions
 - Added `ContactResponse` model for API responses
 - Includes validation for name (1-100 chars), email (valid format), and message (1-2000 chars)
 
 #### 6. **backend/app/services/email_service.py** (NEW)
+
 - Created `EmailService` class with `send_contact_email()` method
 - Sends beautifully formatted HTML emails
 - Includes plain text fallback
@@ -36,6 +43,7 @@ The contact form functionality has been successfully implemented. Users can now 
 - Sets Reply-To header to submitter's email
 
 #### 7. **backend/app/routers/contact.py** (NEW)
+
 - Created `POST /api/v1/contact` endpoint
 - Validates form data
 - Calls EmailService to send email
@@ -43,17 +51,20 @@ The contact form functionality has been successfully implemented. Users can now 
 - Proper HTTP status codes and error messages
 
 #### 8. **backend/app/main.py**
+
 - Imported and registered contact router
 - Contact endpoint now available at `/api/v1/contact`
 
 ### Frontend (2 files modified)
 
 #### 1. **frontend/src/services/api.ts**
+
 - Added `contactApi` with `submit()` method
 - Makes POST request to `/api/v1/contact`
 - Returns response data
 
 #### 2. **frontend/src/components/ContactUs.tsx**
+
 - Integrated with contact API
 - Added loading state with "Sending..." button text
 - Added error state with error message display
@@ -65,6 +76,7 @@ The contact form functionality has been successfully implemented. Users can now 
 ### Documentation
 
 #### 1. **backend/CONTACT_FORM_SETUP.md** (NEW)
+
 - Complete setup guide for Gmail SMTP
 - Step-by-step App Password generation
 - Environment variable configuration
@@ -100,18 +112,20 @@ Edit `backend/.env` and set:
 SMTP_USERNAME=your-gmail@gmail.com
 SMTP_PASSWORD=your-app-password-here    # No spaces!
 SMTP_FROM_EMAIL=your-gmail@gmail.com
-SMTP_TO_EMAIL=info@transparentpolitics.com
+SMTP_TO_EMAIL=ttransparentpolitics@gmail.com
 ```
 
 ### 4. Test the Implementation
 
 **Start the backend:**
+
 ```bash
 cd backend
 uvicorn app.main:app --reload --port 8000
 ```
 
 **Test with curl:**
+
 ```bash
 curl -X POST http://localhost:8000/api/v1/contact \
   -H "Content-Type: application/json" \
@@ -123,6 +137,7 @@ curl -X POST http://localhost:8000/api/v1/contact \
 ```
 
 **Expected response:**
+
 ```json
 {
   "success": true,
@@ -131,6 +146,7 @@ curl -X POST http://localhost:8000/api/v1/contact \
 ```
 
 **Test from browser:**
+
 ```bash
 cd frontend
 npm start
@@ -141,6 +157,7 @@ Navigate to Contact Us page and submit the form.
 ## Features Implemented
 
 ### Validation
+
 - ✅ Name: 1-100 characters, required
 - ✅ Email: Valid email format, required
 - ✅ Message: 1-2000 characters, required
@@ -148,6 +165,7 @@ Navigate to Contact Us page and submit the form.
 - ✅ Backend validation (Pydantic)
 
 ### User Experience
+
 - ✅ Loading state during submission
 - ✅ "Sending..." button text
 - ✅ Form fields disabled during submission
@@ -157,6 +175,7 @@ Navigate to Contact Us page and submit the form.
 - ✅ Auto-hide success message after 5 seconds
 
 ### Email Features
+
 - ✅ HTML formatted email with styling
 - ✅ Plain text fallback
 - ✅ Reply-To header set to submitter's email
@@ -164,6 +183,7 @@ Navigate to Contact Us page and submit the form.
 - ✅ Includes sender name, email, and message
 
 ### Error Handling
+
 - ✅ SMTP connection errors
 - ✅ Authentication failures
 - ✅ Network timeouts
@@ -172,6 +192,7 @@ Navigate to Contact Us page and submit the form.
 - ✅ Detailed logging for debugging
 
 ### Security
+
 - ✅ Credentials in .env (not committed)
 - ✅ Input validation and sanitization
 - ✅ Email format validation
@@ -183,6 +204,7 @@ Navigate to Contact Us page and submit the form.
 ### POST /api/v1/contact
 
 **Request:**
+
 ```json
 {
   "name": "John Doe",
@@ -192,6 +214,7 @@ Navigate to Contact Us page and submit the form.
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -200,6 +223,7 @@ Navigate to Contact Us page and submit the form.
 ```
 
 **Error Response (500):**
+
 ```json
 {
   "success": false,
@@ -248,19 +272,23 @@ frontend/
 For production deployment:
 
 1. **Use a dedicated email service** instead of Gmail:
+
    - SendGrid (100 free emails/day)
    - AWS SES (pay-as-you-go)
    - Mailgun (5,000 free emails/month)
 
 2. **Add rate limiting** to prevent abuse:
+
    - Limit submissions per IP address
    - Limit submissions per email address
 
 3. **Add CAPTCHA** to prevent spam:
+
    - Google reCAPTCHA
    - hCaptcha
 
 4. **Store submissions in database** for record-keeping:
+
    - Create `contact_submissions` table
    - Save before/after sending email
    - Provides backup if email fails
@@ -286,6 +314,7 @@ For production deployment:
 ## Troubleshooting
 
 If you encounter issues, refer to `backend/CONTACT_FORM_SETUP.md` for detailed troubleshooting steps including:
+
 - SMTP credential issues
 - Authentication failures
 - Connection problems

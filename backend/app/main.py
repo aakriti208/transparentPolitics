@@ -3,7 +3,7 @@ Main FastAPI application entry point
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import districts, candidates, contact
+from app.routers import districts, candidates, contact, bills, votes
 from app.config import settings
 
 app = FastAPI(
@@ -25,6 +25,8 @@ app.add_middleware(
 app.include_router(districts.router, prefix="/api/v1", tags=["districts"])
 app.include_router(candidates.router, prefix="/api/v1", tags=["candidates"])
 app.include_router(contact.router, prefix="/api/v1", tags=["contact"])
+app.include_router(bills.router, prefix="/api/v1", tags=["bills"])
+app.include_router(votes.router, prefix="/api/v1", tags=["votes"])
 
 
 @app.get("/")

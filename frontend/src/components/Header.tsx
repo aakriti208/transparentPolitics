@@ -4,8 +4,8 @@
 import React from 'react';
 
 interface HeaderProps {
-  activeTab: 'map' | 'contact';
-  onTabChange: (tab: 'map' | 'contact') => void;
+  activeTab: 'map' | 'policy' | 'contact';
+  onTabChange: (tab: 'map' | 'policy' | 'contact') => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
@@ -31,6 +31,16 @@ const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
               }`}
             >
               Map
+            </button>
+            <button
+              onClick={() => onTabChange('policy')}
+              className={`px-3 py-2 text-sm font-medium transition-colors ${
+                activeTab === 'policy'
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Policy Impact
             </button>
             <button
               onClick={() => onTabChange('contact')}

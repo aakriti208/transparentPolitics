@@ -44,10 +44,11 @@ SMTP_PORT=587
 SMTP_USERNAME=your-gmail@gmail.com
 SMTP_PASSWORD=abcdefghijklmnop          # Use the App Password (no spaces)
 SMTP_FROM_EMAIL=your-gmail@gmail.com
-SMTP_TO_EMAIL=info@transparentpolitics.com
+SMTP_TO_EMAIL=ttransparentpolitics@gmail.com
 ```
 
 **Important:**
+
 - Replace `your-gmail@gmail.com` with your actual Gmail address
 - Replace `abcdefghijklmnop` with the App Password you generated (remove spaces)
 - The `SMTP_FROM_EMAIL` should be the same as `SMTP_USERNAME`
@@ -82,6 +83,7 @@ curl -X POST http://localhost:8000/api/v1/contact \
 ```
 
 Expected response:
+
 ```json
 {
   "success": true,
@@ -94,6 +96,7 @@ You should receive an email at the `SMTP_TO_EMAIL` address.
 ### Test from Frontend
 
 1. Start the frontend:
+
    ```bash
    cd frontend
    npm start
@@ -114,6 +117,7 @@ You should receive an email at the `SMTP_TO_EMAIL` address.
 **Problem:** Backend can't find SMTP credentials in environment variables.
 
 **Solution:**
+
 - Verify that `.env` file exists in the `backend/` directory
 - Check that `SMTP_USERNAME` and `SMTP_PASSWORD` are set correctly
 - Restart the backend server after modifying `.env`
@@ -123,6 +127,7 @@ You should receive an email at the `SMTP_TO_EMAIL` address.
 **Problem:** Gmail is rejecting the credentials.
 
 **Solution:**
+
 - Verify that 2FA is enabled on your Gmail account
 - Regenerate the App Password and update `.env`
 - Make sure you're using the App Password, not your regular Gmail password
@@ -133,6 +138,7 @@ You should receive an email at the `SMTP_TO_EMAIL` address.
 **Problem:** Can't connect to Gmail's SMTP server.
 
 **Solution:**
+
 - Check your internet connection
 - Verify firewall/antivirus isn't blocking port 587
 - Some networks block SMTP ports - try a different network
@@ -142,6 +148,7 @@ You should receive an email at the `SMTP_TO_EMAIL` address.
 **Problem:** No error, but email doesn't arrive.
 
 **Solution:**
+
 - Check the spam/junk folder at `SMTP_TO_EMAIL`
 - Verify `SMTP_TO_EMAIL` is set correctly in `.env`
 - Check Gmail's "Sent" folder to confirm the email was sent
@@ -182,6 +189,7 @@ Each service has its own SMTP settings that can be configured in `.env`.
 ### Endpoint: POST /api/v1/contact
 
 **Request Body:**
+
 ```json
 {
   "name": "string (1-100 characters)",
@@ -191,6 +199,7 @@ Each service has its own SMTP settings that can be configured in `.env`.
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -199,6 +208,7 @@ Each service has its own SMTP settings that can be configured in `.env`.
 ```
 
 **Error Response (500):**
+
 ```json
 {
   "success": false,
@@ -207,6 +217,7 @@ Each service has its own SMTP settings that can be configured in `.env`.
 ```
 
 **Validation Error (422):**
+
 ```json
 {
   "detail": [
@@ -222,6 +233,7 @@ Each service has its own SMTP settings that can be configured in `.env`.
 ## Support
 
 If you encounter issues not covered in this guide, please:
+
 1. Check the backend logs for detailed error messages
 2. Verify all environment variables are set correctly
 3. Test with curl to isolate frontend/backend issues

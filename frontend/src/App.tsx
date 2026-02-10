@@ -5,6 +5,7 @@ import MapView from './components/MapView';
 import ContactUs from './components/ContactUs';
 import CandidatesSection from './components/CandidatesSection';
 import CandidateModal from './components/CandidateModal';
+import PolicyImpactDashboard from './components/PolicyImpactDashboard';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,7 +17,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'map' | 'contact'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'policy' | 'contact'>('map');
   const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(null);
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const candidatesSectionRef = useRef<HTMLDivElement>(null);
@@ -33,7 +34,7 @@ function App() {
     }, 100);
   };
 
-  const handleTabChange = (tab: 'map' | 'contact') => {
+  const handleTabChange = (tab: 'map' | 'policy' | 'contact') => {
     setActiveTab(tab);
     setSelectedDistrictId(null);
   };
@@ -60,6 +61,8 @@ function App() {
               />
             </div>
           </>
+        ) : activeTab === 'policy' ? (
+          <PolicyImpactDashboard />
         ) : (
           <ContactUs />
         )}
