@@ -55,5 +55,62 @@
     },
     "population": 766987,
     "median_income": 71638
+  },
+  {
+    "id": "TX-7",
+    "name": "Texas 7th District",
+    "state": "Texas",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-95.5631, 29.7082],
+          [-95.5631, 29.8582],
+          [-95.3131, 29.8582],
+          [-95.3131, 29.7082],
+          [-95.5631, 29.7082]
+        ]
+      ]
+    },
+    "population": 734810,
+    "median_income": 89546
+  },
+  {
+    "id": "TX-10",
+    "name": "Texas 10th District",
+    "state": "Texas",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-97.8431, 30.2072],
+          [-97.8431, 30.3972],
+          [-97.6431, 30.3972],
+          [-97.6431, 30.2072],
+          [-97.8431, 30.2072]
+        ]
+      ]
+    },
+    "population": 752467,
+    "median_income": 67234
+  },
+  {
+    "id": "TX-35",
+    "name": "Texas 35th District",
+    "state": "Texas",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-98.5436, 29.3241],
+          [-98.5436, 30.4672],
+          [-97.6431, 30.4672],
+          [-97.6431, 29.3241],
+          [-98.5436, 29.3241]
+        ]
+      ]
+    },
+    "population": 728254,
+    "median_income": 52890
   }
 ]

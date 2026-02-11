@@ -3,7 +3,7 @@
     "id": "1",
     "name": "Nancy Pelosi",
     "party": "Democratic",
-    "district_id": "CA-12",
+    "district_id": "TX-21",
     "status": "current",
     "image_url": "https://via.placeholder.com/150/0000FF/FFFFFF?text=NP",
     "bio": "Nancy Pelosi has represented California's 12th congressional district since 1987. She served as the 52nd Speaker of the House from 2007 to 2011 and again from 2019 to 2023. Pelosi is known for her work on healthcare reform, climate change legislation, and LGBTQ+ rights.",
@@ -54,7 +54,7 @@
     "id": "2",
     "name": "John Martinez",
     "party": "Republican",
-    "district_id": "CA-12",
+    "district_id": "TX-21`",
     "status": "future",
     "image_url": "https://via.placeholder.com/150/FF0000/FFFFFF?text=JM",
     "bio": "John Martinez is a business owner and community leader running to represent California's 12th district. He focuses on economic growth, public safety, and reducing government spending. Martinez has been active in San Francisco's Chamber of Commerce for over 15 years.",
@@ -86,7 +86,7 @@
     "id": "3",
     "name": "Alexandria Ocasio-Cortez",
     "party": "Democratic",
-    "district_id": "NY-14",
+    "district_id": "TX-21",
     "status": "current",
     "image_url": "https://via.placeholder.com/150/0000FF/FFFFFF?text=AOC",
     "bio": "Alexandria Ocasio-Cortez, commonly known as AOC, has represented New York's 14th congressional district since 2019. She is a member of the Democratic Socialists of America and is known for her advocacy for the Green New Deal, Medicare for All, and progressive economic policies.",
@@ -137,7 +137,7 @@
     "id": "4",
     "name": "Michael Chen",
     "party": "Republican",
-    "district_id": "NY-14",
+    "district_id": "TX-21",
     "status": "future",
     "image_url": "https://via.placeholder.com/150/FF0000/FFFFFF?text=MC",
     "bio": "Michael Chen is a former NYPD officer and small business owner challenging for New York's 14th district seat. His platform focuses on public safety, supporting law enforcement, and bringing fiscal responsibility to Washington.",
@@ -247,5 +247,197 @@
     },
     "website": "https://thompsonfortexas.com",
     "email": "info@thompsonfortexas.com"
+  },
+  {
+    "id": "7",
+    "name": "Lizzie Fletcher",
+    "party": "Democratic",
+    "district_id": "TX-7",
+    "status": "current",
+    "image_url": "https://via.placeholder.com/150/0000FF/FFFFFF?text=LF",
+    "bio": "Lizzie Fletcher has represented Texas's 7th congressional district since 2019. A former attorney, she focuses on healthcare access, infrastructure investment, and supporting small businesses. Fletcher serves on the House Science, Space, and Technology Committee and Transportation and Infrastructure Committee.",
+    "voting_record": null,
+    "funding": {
+      "total": 2850000,
+      "sources": [
+        {
+          "name": "Individual Contributions",
+          "amount": 1650000,
+          "type": "individual"
+        },
+        {
+          "name": "Democratic PACs",
+          "amount": 850000,
+          "type": "PAC"
+        },
+        {
+          "name": "Labor Unions",
+          "amount": 350000,
+          "type": "PAC"
+        }
+      ]
+    },
+    "website": "https://fletcher.house.gov",
+    "email": "contact@lizziefletcher.gov"
+  },
+  {
+    "id": "8",
+    "name": "Wesley Hunt",
+    "party": "Republican",
+    "district_id": "TX-7",
+    "status": "future",
+    "image_url": "https://via.placeholder.com/150/FF0000/FFFFFF?text=WH",
+    "bio": "Wesley Hunt is a U.S. Army veteran and business executive challenging for Texas's 7th district. His platform emphasizes veterans' issues, economic development, and border security. Hunt served in the Iraq War and advocates for strong national defense.",
+    "voting_record": null,
+    "funding": {
+      "total": 1420000,
+      "sources": [
+        {
+          "name": "Individual Contributions",
+          "amount": 920000,
+          "type": "individual"
+        },
+        {
+          "name": "Veterans PACs",
+          "amount": 350000,
+          "type": "PAC"
+        },
+        {
+          "name": "Republican Party",
+          "amount": 150000,
+          "type": "party"
+        }
+      ]
+    },
+    "website": "https://wesleyhunt.com",
+    "email": "info@wesleyhunt.com"
+  },
+  {
+    "id": "9",
+    "name": "Michael McCaul",
+    "party": "Republican",
+    "district_id": "TX-10",
+    "status": "current",
+    "image_url": "https://via.placeholder.com/150/FF0000/FFFFFF?text=MM",
+    "bio": "Michael McCaul has represented Texas's 10th congressional district since 2005. He serves as Chairman of the House Foreign Affairs Committee and focuses on national security, border protection, and cybersecurity. Before Congress, McCaul served as Chief of Counterterrorism for the U.S. Attorney's Office.",
+    "voting_record": null,
+    "funding": {
+      "total": 3950000,
+      "sources": [
+        {
+          "name": "Individual Contributions",
+          "amount": 2150000,
+          "type": "individual"
+        },
+        {
+          "name": "Defense Industry PACs",
+          "amount": 1200000,
+          "type": "PAC"
+        },
+        {
+          "name": "Republican Party",
+          "amount": 600000,
+          "type": "party"
+        }
+      ]
+    },
+    "website": "https://mccaul.house.gov",
+    "email": "contact@mccaul.gov"
+  },
+  {
+    "id": "10",
+    "name": "Mike Siegel",
+    "party": "Democratic",
+    "district_id": "TX-10",
+    "status": "future",
+    "image_url": "https://via.placeholder.com/150/0000FF/FFFFFF?text=MS",
+    "bio": "Mike Siegel is a civil rights attorney and progressive activist running for Texas's 10th district. His campaign focuses on Medicare for All, climate action, and workers' rights. Siegel has a history of advocating for underrepresented communities.",
+    "voting_record": null,
+    "funding": {
+      "total": 1150000,
+      "sources": [
+        {
+          "name": "Individual Contributions (under $200)",
+          "amount": 850000,
+          "type": "individual"
+        },
+        {
+          "name": "Progressive PACs",
+          "amount": 250000,
+          "type": "PAC"
+        },
+        {
+          "name": "Labor Unions",
+          "amount": 50000,
+          "type": "PAC"
+        }
+      ]
+    },
+    "website": "https://siegelfortexas.org",
+    "email": "info@siegelfortexas.org"
+  },
+  {
+    "id": "11",
+    "name": "Lloyd Doggett",
+    "party": "Democratic",
+    "district_id": "TX-35",
+    "status": "current",
+    "image_url": "https://via.placeholder.com/150/0000FF/FFFFFF?text=LD",
+    "bio": "Lloyd Doggett has represented Texas in Congress since 1995, currently serving the 35th district. A senior member of the House Ways and Means Committee, he focuses on healthcare reform, tax policy, and social security. Doggett is known for his advocacy on pharmaceutical pricing and international trade issues.",
+    "voting_record": null,
+    "funding": {
+      "total": 2650000,
+      "sources": [
+        {
+          "name": "Individual Contributions",
+          "amount": 1550000,
+          "type": "individual"
+        },
+        {
+          "name": "Healthcare PACs",
+          "amount": 750000,
+          "type": "PAC"
+        },
+        {
+          "name": "Labor Unions",
+          "amount": 350000,
+          "type": "PAC"
+        }
+      ]
+    },
+    "website": "https://doggett.house.gov",
+    "email": "contact@doggett.gov"
+  },
+  {
+    "id": "12",
+    "name": "Jenny Garcia Sharon",
+    "party": "Republican",
+    "district_id": "TX-35",
+    "status": "future",
+    "image_url": "https://via.placeholder.com/150/FF0000/FFFFFF?text=JG",
+    "bio": "Jenny Garcia Sharon is a small business owner and community organizer challenging for Texas's 35th district. Her platform emphasizes economic opportunity, school choice, and traditional family values. Garcia Sharon advocates for reducing government regulation and supporting entrepreneurship.",
+    "voting_record": null,
+    "funding": {
+      "total": 725000,
+      "sources": [
+        {
+          "name": "Individual Contributions",
+          "amount": 475000,
+          "type": "individual"
+        },
+        {
+          "name": "Small Business PAC",
+          "amount": 150000,
+          "type": "PAC"
+        },
+        {
+          "name": "Republican Party",
+          "amount": 100000,
+          "type": "party"
+        }
+      ]
+    },
+    "website": "https://garciafortexas.com",
+    "email": "info@garciafortexas.com"
   }
 ]
