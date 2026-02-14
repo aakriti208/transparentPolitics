@@ -7,5 +7,11 @@
   {"bill_id": 6, "topic_id": 4},
   {"bill_id": 7, "topic_id": 4},
   {"bill_id": 8, "topic_id": 6},
-  {"bill_id": 9, "topic_id": 5}
+  {"bill_id": 9, "topic_id": 5},
+  {"bill_id": 10, "topic_id": 2},
+  {"bill_id": 11, "topic_id": 1},
+  {"bill_id": 12, "topic_id": 3},
+  {"bill_id": 13, "topic_id": 4},
+  {"bill_id": 14, "topic_id": 5},
+  {"bill_id": 15, "topic_id": 6}
 ]

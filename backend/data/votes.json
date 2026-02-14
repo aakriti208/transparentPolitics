@@ -94,5 +94,117 @@
     "vote_choice": "Yes",
     "vote_date": "2024-06-05T15:30:00Z",
     "notes": "Strong national defense is critical"
+  },
+  {
+    "vote_id": 13,
+    "bill_id": 10,
+    "candidate_id": "1",
+    "vote_choice": "Yes",
+    "vote_date": "2024-08-10T14:30:00Z",
+    "notes": "Supporting renewable energy is vital for our future"
+  },
+  {
+    "vote_id": 14,
+    "bill_id": 11,
+    "candidate_id": "1",
+    "vote_choice": "Yes",
+    "vote_date": "2024-07-25T15:45:00Z",
+    "notes": "Prescription drug prices must be affordable for all"
+  },
+  {
+    "vote_id": 15,
+    "bill_id": 14,
+    "candidate_id": "1",
+    "vote_choice": "Yes",
+    "vote_date": "2024-10-15T13:20:00Z",
+    "notes": "Public transportation is essential infrastructure"
+  },
+  {
+    "vote_id": 16,
+    "bill_id": 10,
+    "candidate_id": "3",
+    "vote_choice": "Yes",
+    "vote_date": "2024-08-10T14:30:00Z",
+    "notes": "Clean energy is the future"
+  },
+  {
+    "vote_id": 17,
+    "bill_id": 11,
+    "candidate_id": "3",
+    "vote_choice": "Yes",
+    "vote_date": "2024-07-25T15:45:00Z",
+    "notes": "Healthcare costs must be controlled"
+  },
+  {
+    "vote_id": 18,
+    "bill_id": 13,
+    "candidate_id": "3",
+    "vote_choice": "Yes",
+    "vote_date": "2024-06-30T16:00:00Z",
+    "notes": "Cybersecurity is a modern necessity"
+  },
+  {
+    "vote_id": 19,
+    "bill_id": 14,
+    "candidate_id": "3",
+    "vote_choice": "Yes",
+    "vote_date": "2024-10-15T13:20:00Z",
+    "notes": "Investing in public transit reduces carbon emissions"
+  },
+  {
+    "vote_id": 20,
+    "bill_id": 8,
+    "candidate_id": "3",
+    "vote_choice": "No",
+    "vote_date": "2024-03-30T14:45:00Z",
+    "notes": "Cuts would harm essential services"
+  },
+  {
+    "vote_id": 21,
+    "bill_id": 12,
+    "candidate_id": "5",
+    "vote_choice": "Yes",
+    "vote_date": "2024-09-12T14:00:00Z",
+    "notes": "Small businesses drive our economy"
+  },
+  {
+    "vote_id": 22,
+    "bill_id": 13,
+    "candidate_id": "5",
+    "vote_choice": "Yes",
+    "vote_date": "2024-06-30T16:00:00Z",
+    "notes": "National security requires strong cybersecurity"
+  },
+  {
+    "vote_id": 23,
+    "bill_id": 15,
+    "candidate_id": "5",
+    "vote_choice": "Yes",
+    "vote_date": "2024-10-20T15:00:00Z",
+    "notes": "Disaster relief is a federal responsibility"
+  },
+  {
+    "vote_id": 24,
+    "bill_id": 10,
+    "candidate_id": "5",
+    "vote_choice": "No",
+    "vote_date": "2024-08-10T14:30:00Z",
+    "notes": "Concerned about cost and government overreach"
+  },
+  {
+    "vote_id": 25,
+    "bill_id": 15,
+    "candidate_id": "1",
+    "vote_choice": "Yes",
+    "vote_date": "2024-10-20T15:00:00Z",
+    "notes": "Communities need support during disasters"
+  },
+  {
+    "vote_id": 26,
+    "bill_id": 15,
+    "candidate_id": "3",
+    "vote_choice": "Yes",
+    "vote_date": "2024-10-20T15:00:00Z",
+    "notes": "Relief for those in need is essential"
   }
 ]
