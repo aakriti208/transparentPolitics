@@ -67,7 +67,6 @@ export const contactApi = {
    */
   submit: async (data: { name: string; email: string; message: string }) => {
     const response = await apiClient.post('/contact', data);
-    console.log(response);
     return response.data;
   },
 };

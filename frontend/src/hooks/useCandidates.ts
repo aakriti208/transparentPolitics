@@ -3,7 +3,7 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { Candidate } from '../types';
-import { texasCandidates } from '../data/texasCandidates';
+import { candidatesApi } from '../services/api';
 
 /**
  * Hook to fetch a specific candidate by ID
@@ -13,13 +13,9 @@ export const useCandidate = (candidateId: string | null) => {
     queryKey: ['candidate', candidateId],
     queryFn: async () => {
       if (!candidateId) throw new Error('No candidate ID provided');
-
-      const candidate = texasCandidates.find(c => c.id === candidateId);
-      if (!candidate) throw new Error('Candidate not found');
-
-      return candidate;
+      return await candidatesApi.getById(candidateId);
     },
     enabled: !!candidateId,
-    staleTime: Infinity, // Static data
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

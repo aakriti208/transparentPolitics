@@ -1,7 +1,8 @@
 /**
  * CandidateModal Component - Detailed candidate information modal
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useCandidate } from '../hooks/useCandidates';
 import { getPartyColor, getPartyBgColor } from '../utils/partyColors';
 import { votesApi } from '../services/api';
@@ -19,8 +20,26 @@ const CandidateModal: React.FC<CandidateModalProps> = ({
   const { data: candidate, isLoading } = useCandidate(candidateId);
   const [votes, setVotes] = useState<CandidateVote[]>([]);
   const [votesLoading, setVotesLoading] = useState(false);
+  const [isFundingExpanded, setIsFundingExpanded] = useState(false);
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const [isBillTableExpanded, setIsBillTableExpanded] = useState(false);
 
   const isOpen = !!candidateId;
+
+  // Topic color mapping (same as PolicyImpactDashboard)
+  const TOPIC_COLORS: { [key: string]: string } = {
+    'Healthcare': '#3b82f6',
+    'Climate & Environment': '#10b981',
+    'Tax & Economy': '#f59e0b',
+    'Defense & Security': '#ef4444',
+    'Infrastructure': '#8b5cf6',
+    'Budget & Spending': '#06b6d4',
+    'Other': '#6b7280'
+  };
+
+  const getTopicColor = (topic: string) => {
+    return TOPIC_COLORS[topic] || TOPIC_COLORS['Other'];
+  };
 
   // Fetch votes when candidate changes
   useEffect(() => {
@@ -42,24 +61,51 @@ const CandidateModal: React.FC<CandidateModalProps> = ({
     fetchVotes();
   }, [candidateId]);
 
+  // Calculate pie chart data from votes
+  interface PieChartData {
+    name: string;
+    value: number;
+    color: string;
+  }
+
+  const pieChartData: PieChartData[] = useMemo(() => {
+    if (!votes || votes.length === 0) return [];
+
+    const topicCounts = votes.reduce((acc, vote) => {
+      const topic = vote.bill.topic;
+      acc[topic] = (acc[topic] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    return Object.entries(topicCounts).map(([name, value]) => ({
+      name,
+      value,
+      color: getTopicColor(name)
+    }));
+  }, [votes]);
+
+  // Filter votes by selected topic
+  const filteredVotes = useMemo(() => {
+    if (!selectedTopic) return [];
+    return votes.filter(vote => vote.bill.topic === selectedTopic);
+  }, [votes, selectedTopic]);
+
+  // Handle pie chart slice click
+  const handlePieClick = (data: PieChartData) => {
+    if (selectedTopic === data.name) {
+      // Deselect if clicking the same slice
+      setSelectedTopic(null);
+      setIsBillTableExpanded(false);
+    } else {
+      setSelectedTopic(data.name);
+      setIsBillTableExpanded(true);
+    }
+  };
+
   if (!isOpen) return null;
 
   const partyColor = candidate ? getPartyColor(candidate.party) : '';
   const partyBgColor = candidate ? getPartyBgColor(candidate.party) : '';
-
-  // Topic color mapping (same as PolicyImpactDashboard)
-  const getTopicColor = (topic: string) => {
-    const colors: { [key: string]: string } = {
-      'Healthcare': '#3b82f6',
-      'Climate & Environment': '#10b981',
-      'Tax & Economy': '#f59e0b',
-      'Defense & Security': '#ef4444',
-      'Infrastructure': '#8b5cf6',
-      'Budget & Spending': '#06b6d4',
-      'Other': '#6b7280'
-    };
-    return colors[topic] || colors['Other'];
-  };
 
   return (
     <>
@@ -155,207 +201,262 @@ const CandidateModal: React.FC<CandidateModalProps> = ({
               {/* Divider */}
               <div className="border-t border-gray-200 mx-8"></div>
 
-              {/* Bottom Section: Two Columns */}
+              {/* Bottom Section: Full Width Impact of Policies */}
               <div className="px-8 py-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Left Column: Current Policies */}
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">
-                      Current Policies
-                    </h3>
-
-                    {/* Biography/Platform */}
-                    <div className="mb-6">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2 uppercase">
-                        Platform
-                      </h4>
-                      <p className="text-gray-700 leading-relaxed text-sm">
-                        {candidate.bio}
-                      </p>
-                    </div>
-
-                    {/* Policy Impact - Voting Record */}
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase flex items-center justify-between">
-                        <span>Impact of Policies</span>
-                        {candidate.status === 'current' && (
-                          <span className="text-xs font-normal text-gray-500 normal-case">
-                            {votes.length} votes recorded
-                          </span>
-                        )}
-                      </h4>
-                      {votesLoading ? (
-                        <div className="space-y-2">
-                          <div className="h-20 bg-gray-200 rounded animate-pulse" />
-                          <div className="h-20 bg-gray-200 rounded animate-pulse" />
-                        </div>
-                      ) : votes.length > 0 ? (
-                        <div className="space-y-3">
-                          {votes.map((vote) => (
-                            <div
-                              key={vote.vote_id}
-                              className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-                            >
-                              {/* Topic Badge */}
-                              <div className="flex items-start justify-between gap-3 mb-2">
-                                <span
-                                  className="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
-                                  style={{
-                                    backgroundColor: `${getTopicColor(vote.bill.topic)}20`,
-                                    color: getTopicColor(vote.bill.topic)
-                                  }}
-                                >
-                                  {vote.bill.topic}
-                                </span>
-                                <span
-                                  className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                                    vote.vote_choice.toLowerCase() === 'yes'
-                                      ? 'bg-green-100 text-green-800'
-                                      : vote.vote_choice.toLowerCase() === 'no'
-                                      ? 'bg-red-100 text-red-800'
-                                      : 'bg-gray-100 text-gray-800'
-                                  }`}
-                                >
-                                  {vote.vote_choice}
-                                </span>
-                              </div>
-
-                              {/* Bill Info */}
-                              <div className="mb-2">
-                                <p className="font-semibold text-gray-900 text-sm mb-1">
-                                  {vote.bill.bill_code}
-                                </p>
-                                <p className="text-xs text-gray-600 line-clamp-2">
-                                  {vote.bill.simple_summary || vote.bill.official_title}
-                                </p>
-                              </div>
-
-                              {/* Vote Notes */}
-                              {vote.notes && (
-                                <div className="mb-2 pl-3 border-l-2 border-blue-300">
-                                  <p className="text-xs text-gray-600 italic">
-                                    "{vote.notes}"
-                                  </p>
-                                </div>
-                              )}
-
-                              {/* Footer */}
-                              <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100">
-                                <p className="text-xs text-gray-500">
-                                  {new Date(vote.vote_date).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric'
-                                  })}
-                                </p>
-                                {vote.bill.full_text_url && (
-                                  <a
-                                    href={vote.bill.full_text_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
-                                  >
-                                    View Bill
-                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                    </svg>
-                                  </a>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : candidate.status === 'current' ? (
-                        <div className="text-center py-6 bg-gray-50 rounded-lg border border-gray-200">
-                          <svg className="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <p className="text-sm text-gray-600">No voting record available</p>
-                        </div>
-                      ) : (
-                        <div className="text-center py-6 bg-blue-50 rounded-lg border border-blue-200">
-                          <p className="text-sm text-blue-700">
-                            Candidate is running for office. Voting record will be available once elected.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Contact Information */}
-                    {(candidate.website || candidate.email) && (
-                      <div className="mt-6">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-2 uppercase">
-                          Contact
-                        </h4>
-                        <div className="space-y-1">
-                          {candidate.website && (
-                            <p className="text-sm">
-                              <span className="text-gray-600">Website:</span>{' '}
-                              <a
-                                href={candidate.website}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:underline"
-                              >
-                                {candidate.website}
-                              </a>
-                            </p>
-                          )}
-                          {candidate.email && (
-                            <p className="text-sm">
-                              <span className="text-gray-600">Email:</span>{' '}
-                              <a
-                                href={`mailto:${candidate.email}`}
-                                className="text-blue-600 hover:underline"
-                              >
-                                {candidate.email}
-                              </a>
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right Column: Impact of Policies (Box) */}
+                <div className="w-full">
+                  {/* Impact of Policies - Full Width */}
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-6 shadow-md">
                     <h3 className="text-xl font-bold text-gray-900 mb-4">
                       Impact of Policies
                     </h3>
 
-                    {/* Campaign Funding Impact */}
-                    <div className="mb-6">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase">
-                        Campaign Funding
-                      </h4>
-                      <div className="bg-white rounded-lg p-4 shadow-sm mb-3">
-                        <p className="text-2xl font-bold text-gray-900">
-                          ${candidate.funding.total.toLocaleString()}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">Total Raised</p>
+                    {/* Pie Chart Visualization */}
+                    {votesLoading ? (
+                      <div className="bg-white rounded-lg p-4 shadow-sm mb-6">
+                        <div className="h-64 bg-gray-200 rounded animate-pulse" />
                       </div>
-                      <div className="space-y-2">
-                        {candidate.funding.sources.map((source, index) => (
-                          <div
-                            key={index}
-                            className="bg-white rounded p-3 shadow-sm"
-                          >
-                            <div className="flex justify-between items-center">
-                              <div className="flex-1">
-                                <p className="font-medium text-gray-900 text-sm">
-                                  {source.name}
-                                </p>
-                                <p className="text-xs text-gray-500 uppercase">
-                                  {source.type}
-                                </p>
+                    ) : pieChartData.length > 0 ? (
+                      <>
+                        <div className="bg-white rounded-lg p-4 shadow-sm mb-4">
+                          <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase text-center">
+                            Votes by Topic
+                            <span className="text-xs font-normal text-gray-500 normal-case ml-2">
+                              ({votes.length} total votes)
+                            </span>
+                          </h4>
+                          <p className="text-xs text-center text-gray-500 mb-3">
+                            Click on a slice to view bills for that topic
+                          </p>
+                          <ResponsiveContainer width="100%" height={300}>
+                            <PieChart>
+                              <Pie
+                                data={pieChartData}
+                                cx="50%"
+                                cy="50%"
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="value"
+                                onClick={(data) => handlePieClick(data)}
+                                style={{ cursor: 'pointer' }}
+                              >
+                                {pieChartData.map((entry, index) => (
+                                  <Cell
+                                    key={`cell-${index}`}
+                                    fill={entry.color}
+                                    opacity={selectedTopic && selectedTopic !== entry.name ? 0.3 : 1}
+                                  />
+                                ))}
+                              </Pie>
+                              <Tooltip
+                                formatter={(value: number | undefined) => {
+                                  if (value === undefined) return ['', ''];
+                                  return [`${value} bills`, 'Count'];
+                                }}
+                              />
+                              <Legend
+                                verticalAlign="bottom"
+                                height={36}
+                                formatter={(value) => <span className="text-xs">{value}</span>}
+                              />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+
+                        {/* Interactive Bill Table */}
+                        {selectedTopic && isBillTableExpanded && (
+                          <div className="bg-white rounded-lg shadow-sm mb-6 border-2 border-blue-300">
+                            <button
+                              onClick={() => setIsBillTableExpanded(!isBillTableExpanded)}
+                              className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span
+                                  className="inline-flex items-center px-3 py-1 rounded text-sm font-medium"
+                                  style={{
+                                    backgroundColor: `${getTopicColor(selectedTopic)}20`,
+                                    color: getTopicColor(selectedTopic)
+                                  }}
+                                >
+                                  {selectedTopic}
+                                </span>
+                                <span className="text-sm font-semibold text-gray-900">
+                                  {filteredVotes.length} {filteredVotes.length === 1 ? 'Bill' : 'Bills'}
+                                </span>
                               </div>
-                              <p className="font-semibold text-gray-900 text-sm">
-                                ${source.amount.toLocaleString()}
-                              </p>
-                            </div>
+                              <svg
+                                className={`w-5 h-5 transition-transform ${isBillTableExpanded ? 'rotate-180' : ''}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </button>
+
+                            {isBillTableExpanded && (
+                              <div className="border-t border-gray-200">
+                                <div className="overflow-x-auto">
+                                  <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50">
+                                      <tr>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                          Topic
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                          Bill Name
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                          Summary
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                          Vote
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                          Details
+                                        </th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                      {filteredVotes.map((vote) => (
+                                        <tr key={vote.vote_id} className="hover:bg-gray-50 transition-colors">
+                                          <td className="px-4 py-4 whitespace-nowrap">
+                                            <span
+                                              className="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
+                                              style={{
+                                                backgroundColor: `${getTopicColor(vote.bill.topic)}20`,
+                                                color: getTopicColor(vote.bill.topic)
+                                              }}
+                                            >
+                                              {vote.bill.topic}
+                                            </span>
+                                          </td>
+                                          <td className="px-4 py-4">
+                                            <p className="text-sm font-semibold text-gray-900">
+                                              {vote.bill.bill_code}
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                              {new Date(vote.vote_date).toLocaleDateString('en-US', {
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric'
+                                              })}
+                                            </p>
+                                          </td>
+                                          <td className="px-4 py-4 max-w-md">
+                                            <p className="text-sm text-gray-700 line-clamp-3">
+                                              {vote.bill.simple_summary || vote.bill.official_title}
+                                            </p>
+                                            {vote.notes && (
+                                              <p className="text-xs text-gray-500 italic mt-1">
+                                                Note: {vote.notes}
+                                              </p>
+                                            )}
+                                          </td>
+                                          <td className="px-4 py-4 whitespace-nowrap">
+                                            <span
+                                              className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
+                                                vote.vote_choice.toLowerCase() === 'yes'
+                                                  ? 'bg-green-100 text-green-800'
+                                                  : vote.vote_choice.toLowerCase() === 'no'
+                                                  ? 'bg-red-100 text-red-800'
+                                                  : 'bg-gray-100 text-gray-800'
+                                              }`}
+                                            >
+                                              {vote.vote_choice}
+                                            </span>
+                                          </td>
+                                          <td className="px-4 py-4 whitespace-nowrap">
+                                            {vote.bill.full_text_url && (
+                                              <a
+                                                href={vote.bill.full_text_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center px-3 py-1 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors"
+                                              >
+                                                View Bill
+                                                <svg className="ml-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg>
+                                              </a>
+                                            )}
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        ))}
+                        )}
+                      </>
+                    ) : candidate.status === 'current' ? (
+                      <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
+                        <div className="text-center py-4">
+                          <svg className="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <p className="text-sm text-gray-600">No voting record available</p>
+                        </div>
                       </div>
+                    ) : (
+                      <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
+                        <div className="text-center py-4">
+                          <p className="text-sm text-blue-700">
+                            Candidate is running for office. Voting record will be available once elected.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Campaign Funding - Collapsible */}
+                    <div className="mb-6">
+                      <button
+                        onClick={() => setIsFundingExpanded(!isFundingExpanded)}
+                        className="w-full flex items-center justify-between text-sm font-semibold text-gray-700 mb-3 uppercase hover:text-gray-900 transition-colors"
+                      >
+                        <span>Campaign Funding</span>
+                        <svg
+                          className={`w-5 h-5 transition-transform ${isFundingExpanded ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      {isFundingExpanded && (
+                        <>
+                          <div className="bg-white rounded-lg p-4 shadow-sm mb-3">
+                            <p className="text-2xl font-bold text-gray-900">
+                              ${candidate.funding.total.toLocaleString()}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">Total Raised</p>
+                          </div>
+                          <div className="space-y-2">
+                            {candidate.funding.sources.map((source, index) => (
+                              <div
+                                key={index}
+                                className="bg-white rounded p-3 shadow-sm"
+                              >
+                                <div className="flex justify-between items-center">
+                                  <div className="flex-1">
+                                    <p className="font-medium text-gray-900 text-sm">
+                                      {source.name}
+                                    </p>
+                                    <p className="text-xs text-gray-500 uppercase">
+                                      {source.type}
+                                    </p>
+                                  </div>
+                                  <p className="font-semibold text-gray-900 text-sm">
+                                    ${source.amount.toLocaleString()}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     {/* Key Statistics */}

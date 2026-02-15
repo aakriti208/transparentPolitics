@@ -2,10 +2,9 @@
  * Custom hooks for district data
  */
 import { useQuery } from '@tanstack/react-query';
-import { Candidate } from '../types';
+import { Candidate, District } from '../types';
 import { texasDistrictsData } from '../utils/texasDistricts';
-import { texasDistricts } from '../data/texasDistricts';
-import { texasCandidates } from '../data/texasCandidates';
+import { districtsApi } from '../services/api';
 
 /**
  * Hook to fetch all districts (returns GeoJSON)
@@ -25,17 +24,14 @@ export const useDistricts = () => {
  * Hook to fetch a specific district by ID
  */
 export const useDistrict = (districtId: string | null) => {
-  return useQuery<any, Error>({
+  return useQuery<District, Error>({
     queryKey: ['district', districtId],
     queryFn: async () => {
-      if (!districtId) return null;
-
-      // Find the district in the local data
-      const district = texasDistricts.find(d => d.id === districtId);
-      return district || null;
+      if (!districtId) throw new Error('No district ID provided');
+      return await districtsApi.getById(districtId);
     },
     enabled: !!districtId,
-    staleTime: Infinity,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 
@@ -47,12 +43,9 @@ export const useDistrictCandidates = (districtId: string | null) => {
     queryKey: ['districtCandidates', districtId],
     queryFn: async () => {
       if (!districtId) return [];
-
-      // Filter candidates by district ID
-      const candidates = texasCandidates.filter(c => c.district_id === districtId);
-      return candidates;
+      return await districtsApi.getCandidates(districtId);
     },
     enabled: !!districtId,
-    staleTime: Infinity,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

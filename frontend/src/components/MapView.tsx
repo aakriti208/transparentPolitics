@@ -2,7 +2,7 @@
  * MapView Component - Interactive Leaflet map with district markers
  */
 import React from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useDistricts } from '../hooks/useDistricts';
 import { getDefaultMapConfig } from '../services/mapService';
@@ -53,8 +53,13 @@ const MapView: React.FC<MapViewProps> = ({ onDistrictClick }) => {
         {districtsData && districtsData.features && districtsData.features.map((feature: any, index: number) => {
           const [lng, lat] = feature.geometry.coordinates;
           const districtName = feature.properties.name;
-          const districtId = `district-${index + 1}`;
+          // Extract district number from name (e.g., "District 21" -> "21")
+          const districtNumber = districtName.match(/\d+/)?.[0];
+          const districtId = districtNumber ? `TX-${districtNumber}` : `district-${index + 1}`;
           const fillColor = getRedShade(index, totalDistricts);
+
+          // Simple display name: "Texas 21"
+          const displayName = districtNumber ? `Texas ${districtNumber}` : districtName;
 
           return (
             <CircleMarker
@@ -75,7 +80,6 @@ const MapView: React.FC<MapViewProps> = ({ onDistrictClick }) => {
                     radius: 20,
                     weight: 4,
                   });
-                  e.target.openPopup();
                 },
                 mouseout: (e) => {
                   e.target.setStyle({
@@ -86,13 +90,9 @@ const MapView: React.FC<MapViewProps> = ({ onDistrictClick }) => {
                 },
               }}
             >
-              <Popup>
-                <div className="text-center">
-                  <strong className="text-base">{districtName}</strong>
-                  <br />
-                  <span className="text-sm text-gray-600">Click to view details</span>
-                </div>
-              </Popup>
+              <Tooltip direction="top" offset={[0, -10]} opacity={0.9}>
+                <span className="text-sm font-semibold">{displayName}</span>
+              </Tooltip>
             </CircleMarker>
           );
         })}
@@ -111,7 +111,7 @@ const MapView: React.FC<MapViewProps> = ({ onDistrictClick }) => {
           {totalDistricts} districts shown
         </p>
         <p className="text-xs text-gray-600 mt-1">
-          Click a marker to view details
+          Click a marker to view candidates
         </p>
       </div>
     </div>
