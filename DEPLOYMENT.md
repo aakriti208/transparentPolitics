@@ -7,6 +7,7 @@ This guide covers building the application **locally on your machine** and deplo
 ---
 
 ## Table of Contents
+
 1. [Prerequisites](#prerequisites)
 2. [Part A: Local Build Process](#part-a-local-build-process)
 3. [Part B: AWS Server Setup](#part-b-aws-server-setup)
@@ -21,11 +22,13 @@ This guide covers building the application **locally on your machine** and deplo
 ## Prerequisites
 
 **On Your Local Machine:**
+
 - Node.js 18.x or higher
 - npm package manager
 - SSH client (Terminal on Mac/Linux, PowerShell/PuTTY on Windows)
 
 **For AWS:**
+
 - AWS Account
 - Domain `transparentpolitics.us` registered and configured
 
@@ -50,6 +53,7 @@ nano .env.production
 ```
 
 Add this content:
+
 ```env
 REACT_APP_API_URL=https://www.transparentpolitics.us/api/v1
 ```
@@ -69,6 +73,7 @@ npm run build
 ```
 
 **Expected output:** A `build` folder will be created containing:
+
 - `index.html`
 - `static/` folder with CSS, JS, and media files
 - `asset-manifest.json`
@@ -111,11 +116,11 @@ You should see the build folder is around 1-5 MB in total size.
 
 Add these **Inbound Rules**:
 
-| Type       | Protocol | Port | Source      | Description       |
-|------------|----------|------|-------------|-------------------|
-| SSH        | TCP      | 22   | Your IP     | SSH access        |
-| HTTP       | TCP      | 80   | 0.0.0.0/0   | Web traffic       |
-| HTTPS      | TCP      | 443  | 0.0.0.0/0   | Secure web traffic|
+| Type  | Protocol | Port | Source    | Description        |
+| ----- | -------- | ---- | --------- | ------------------ |
+| SSH   | TCP      | 22   | Your IP   | SSH access         |
+| HTTP  | TCP      | 80   | 0.0.0.0/0 | Web traffic        |
+| HTTPS | TCP      | 443  | 0.0.0.0/0 | Secure web traffic |
 
 4. Click **Launch Instance**
 
@@ -135,14 +140,15 @@ Add these **Inbound Rules**:
 
 Go to your domain registrar (GoDaddy, Namecheap, etc.) and add these DNS records:
 
-| Type | Name | Value              | TTL |
-|------|------|--------------------|-----|
-| A    | @    | [Your Elastic IP]  | 600 |
-| A    | www  | [Your Elastic IP]  | 600 |
+| Type | Name | Value             | TTL |
+| ---- | ---- | ----------------- | --- |
+| A    | @    | [Your Elastic IP] | 600 |
+| A    | www  | [Your Elastic IP] | 600 |
 
 **DNS Propagation:** Wait 15-30 minutes (can take up to 24 hours).
 
 Verify with:
+
 ```bash
 nslookup www.transparentpolitics.us
 ```
@@ -236,16 +242,19 @@ Download from: https://filezilla-project.org/download.php?type=client
 Once connected:
 
 **Left side (Local):** Navigate to:
+
 ```
 /Users/aakritidhakal/Documents/Projects/transparentPolitics/frontend/
 ```
 
 **Right side (Remote):** Navigate to:
+
 ```
 /var/www/transparentpolitics/
 ```
 
 **Transfer steps:**
+
 1. On the left side, find the `build` folder inside `frontend/`
 2. Right-click on the `build` folder
 3. Select **Upload** or drag it to the right side
@@ -255,16 +264,19 @@ Once connected:
 #### 5.4 Transfer Backend Files
 
 **Left side (Local):** Navigate to:
+
 ```
 /Users/aakritidhakal/Documents/Projects/transparentPolitics/
 ```
 
 **Right side (Remote):** Should still be at:
+
 ```
 /var/www/transparentpolitics/
 ```
 
 **Transfer steps:**
+
 1. On the left side, find the `backend` folder
 2. Right-click on the `backend` folder
 3. Select **Upload** or drag it to the right side
@@ -292,6 +304,7 @@ scp -i transparent-politics-key.pem -r frontend/build ubuntu@[YOUR_ELASTIC_IP]:/
 ```
 
 **Example:**
+
 ```bash
 scp -i transparent-politics-key.pem -r frontend/build ubuntu@54.123.45.67:/var/www/transparentpolitics/frontend-build
 ```
@@ -348,6 +361,7 @@ nano .env
 ```
 
 Add:
+
 ```env
 # API Configuration
 API_PORT=8000
@@ -365,6 +379,7 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
 Open another terminal and SSH in again, then test:
+
 ```bash
 curl http://127.0.0.1:8000/health
 ```
@@ -380,6 +395,7 @@ sudo nano /etc/systemd/system/transparentpolitics-api.service
 ```
 
 Paste this content:
+
 ```ini
 [Unit]
 Description=Transparent Politics FastAPI Application
@@ -427,6 +443,7 @@ sudo nano /etc/nginx/sites-available/transparentpolitics
 ```
 
 Paste this configuration:
+
 ```nginx
 # Redirect HTTP to HTTPS (after SSL setup)
 server {
@@ -503,6 +520,7 @@ sudo certbot --nginx -d transparentpolitics.us -d www.transparentpolitics.us
 ```
 
 Follow the prompts:
+
 1. Enter your email address
 2. Agree to terms (Y)
 3. Choose whether to share email with EFF (your choice)
@@ -578,17 +596,20 @@ npm run build
 
 1. Open FileZilla and connect to your server (use saved site from Site Manager)
 2. **Update Frontend:**
+
    - **Left side:** Navigate to `/Users/aakritidhakal/Documents/Projects/transparentPolitics/frontend/`
    - **Right side:** Navigate to `/var/www/transparentpolitics/`
    - Upload the `build` folder (it will overwrite files in `frontend-build`)
    - Or delete `frontend-build` on the server first, then upload `build` and rename it
 
 3. **Update Backend (if needed):**
+
    - **Left side:** Navigate to `/Users/aakritidhakal/Documents/Projects/transparentPolitics/`
    - **Right side:** Navigate to `/var/www/transparentpolitics/`
    - Upload the `backend` folder (select "Overwrite" when prompted)
 
 4. **Restart Services via SSH:**
+
    ```bash
    ssh -i transparent-politics-key.pem ubuntu@[YOUR_ELASTIC_IP]
 
@@ -679,6 +700,7 @@ sudo systemctl restart nginx
 ## API Calls Failing
 
 Check the API URL in your frontend build:
+
 ```bash
 # On your local machine before building
 cat frontend/.env.production
@@ -687,6 +709,7 @@ cat frontend/.env.production
 Should be: `REACT_APP_API_URL=https://www.transparentpolitics.us/api/v1`
 
 If wrong, fix it and rebuild:
+
 ```bash
 npm run build
 # Then redeploy as described above
@@ -723,6 +746,7 @@ dig www.transparentpolitics.us
 ### FileZilla Quick Setup
 
 **Connection Settings:**
+
 - Protocol: SFTP
 - Host: [YOUR_ELASTIC_IP]
 - Port: 22
@@ -730,6 +754,7 @@ dig www.transparentpolitics.us
 - Key file: transparent-politics-key.pem
 
 **Important Paths:**
+
 - Local frontend build: `/Users/aakritidhakal/Documents/Projects/transparentPolitics/frontend/build`
 - Remote location: `/var/www/transparentpolitics/frontend-build`
 - Remote backend: `/var/www/transparentpolitics/backend`
@@ -796,3 +821,106 @@ htop           # Process monitor
 - Backend runs on localhost:8000 (not exposed to internet)
 - Frontend is served as static files by Nginx
 - All traffic goes through Nginx on ports 80/443
+
+### Deployment Process
+
+Part 1: Build Frontend Locally
+
+cd /Users/aakritidhakal/Documents/Projects/transparentPolitics/f
+rontend  
+ npm run build
+
+---
+
+Part 2: FileZilla Transfer
+
+Open FileZilla & Connect
+
+- Protocol: SFTP
+- Host: 34.199.100.225
+- Port: 22
+- User: ubuntu
+- Key file:  
+  /Users/aakritidhakal/Documents/Projects/transparent-politics.pem
+
+Transfer Frontend
+
+Local (Left): /Users/aakritidhakal/Documents/Projects/transparen
+tPolitics/frontend/  
+ Server (Right): /var/www/transparentpolitics/
+
+1. Delete frontend-build-new on server (if exists)
+2. Upload build folder
+3. Rename uploaded build to frontend-build-new  
+
+
+Transfer Backend (Optional - only if backend changed)
+
+Local (Left): /Users/aakritidhakal/Documents/Projects/transparen
+tPolitics/backend/  
+ Server (Right): /var/www/transparentpolitics/backend/
+
+Upload these folders/files:
+
+- app/ folder
+- data/ folder
+- scripts/ folder
+- requirements.txt  
+
+
+Don't upload: venv/, **pycache**/, .env
+
+---
+
+Part 3: SSH Deployment Commands
+
+ssh -i  
+ /Users/aakritidhakal/Documents/Projects/transparent-politics.pem
+ubuntu@34.199.100.225
+
+Deploy Frontend
+
+cd /var/www/transparentpolitics  
+ rm -rf frontend-build-old  
+ mv frontend-build frontend-build-old  
+ mv frontend-build-new frontend-build
+
+Update Backend (if backend files changed)
+
+cd /var/www/transparentpolitics/backend  
+ source venv/bin/activate  
+ pip install -r requirements.txt
+
+Restart Services
+
+sudo systemctl restart transparentpolitics-api  
+ sudo systemctl reload nginx
+
+Verify
+
+sudo systemctl status transparentpolitics-api  
+ sudo systemctl status nginx
+
+---
+
+Part 4: Database Setup (One-time or when data changes)
+
+cd /var/www/transparentpolitics/backend  
+ source venv/bin/activate
+
+# Create tables
+
+rm politics.db  
+ python -c "from app.database import engine, Base; from  
+ app.db_models import \*; Base.metadata.create_all(bind=engine)"
+
+# Load data
+
+python scripts/load_sample_data.py
+
+# Restart
+
+sudo systemctl restart transparentpolitics-api  
+ exit
+
+---
