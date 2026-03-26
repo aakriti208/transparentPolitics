@@ -1,0 +1,29 @@
+POLITICIAN PROFILE TEMPLATE — EXAMPLE
+
+Name: Jane Smith (fictional example)
+Party: Democrat
+State: Texas
+Chamber: U.S. Senate
+Term: January 2021 - January 2027
+
+Background:
+Former state attorney general with a focus on consumer protection. Served two terms in the Texas state legislature before running for Senate.
+
+Key Policy Positions:
+- Healthcare: Supports expanding Medicaid and lowering prescription drug prices
+- Economy: Advocates for small business tax relief and workforce training programs
+- Energy: Supports a gradual transition to clean energy while protecting oil and gas jobs
+- Immigration: Favors a path to citizenship for DACA recipients and stronger border security
+
+Notable Votes:
+- Inflation Reduction Act (2022): YES
+- Infrastructure Investment and Jobs Act (2021): YES
+- American Rescue Plan (2021): YES
+
+Committees:
+- Senate Finance Committee
+- Senate Judiciary Committee
+
+Contact:
+Washington D.C. Office: 123 Senate Building
+Website: smith.senate.gov (fictional)
