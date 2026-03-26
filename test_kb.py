@@ -1,15 +1,19 @@
 import boto3
-import json
+import chromadb
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
-AWS_REGION     = os.getenv("AWS_REGION")
-KB_ID          = os.getenv("BEDROCK_KB_ID")
-MODEL_ID       = os.getenv("BEDROCK_MODEL_ID")
+AWS_REGION = os.getenv("AWS_REGION")
+MODEL_ID   = os.getenv("BEDROCK_MODEL_ID")
 
-agent_client = boto3.client("bedrock-agent-runtime", region_name=AWS_REGION)
+# Local ChromaDB instead of Bedrock KB
+chroma_client = chromadb.PersistentClient(path="./chroma_db")
+collection     = chroma_client.get_collection("transparent_politics")
+
+# Bedrock for generating answers (still uses AWS)
+bedrock_client = boto3.client("bedrock-runtime", region_name=AWS_REGION)
 
 SYSTEM_PROMPT = """You are a nonpartisan political explainer for Transparent Politics.
 Answer ONLY based on the provided documentation.
@@ -18,26 +22,18 @@ Never take political sides or tell users who to vote for.
 If the answer is not in the documentation, say: "I don't have that information yet."
 Keep answers under 150 words."""
 
-bedrock_client = boto3.client("bedrock-runtime", region_name=AWS_REGION)
-
 def ask_politics(question):
-    # Step 1 — retrieve relevant chunks from KB
-    retrieval = agent_client.retrieve(
-        knowledgeBaseId=KB_ID,
-        retrievalQuery={"text": question},
-        retrievalConfiguration={
-            "vectorSearchConfiguration": {"numberOfResults": 3}
-        }
+    # Step 1 — retrieve from local ChromaDB
+    results = collection.query(
+        query_texts=[question],
+        n_results=3
     )
 
-    # Build context from retrieved chunks
-    chunks = retrieval.get("retrievalResults", [])
-    context = "\n\n".join([
-        f"Source: {r['location']['s3Location']['uri']}\n{r['content']['text']}"
-        for r in chunks
-    ])
+    chunks    = results["documents"][0]
+    sources   = [m["source"] for m in results["metadatas"][0]]
+    context   = "\n\n".join(chunks)
 
-    # Step 2 — send context + question to Claude
+    # Step 2 — send to Claude via Bedrock
     response = bedrock_client.converse(
         modelId=MODEL_ID,
         system=[{"text": SYSTEM_PROMPT}],
@@ -49,9 +45,11 @@ def ask_politics(question):
     )
 
     answer = response["output"]["message"]["content"][0]["text"]
-    sources = list(set([r["location"]["s3Location"]["uri"] for r in chunks]))
 
-    return {"answer": answer, "sources": sources}
+    return {
+        "answer":  answer,
+        "sources": list(set(sources))
+    }
 
 # Test questions
 questions = [

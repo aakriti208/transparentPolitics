@@ -38,3 +38,7 @@ lerna-debug.log*
 *.zip
 *.tar.gz
 *.rar
+
+
+# Database
+.chroma_db
