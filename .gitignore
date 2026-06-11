@@ -40,5 +40,23 @@ lerna-debug.log*
 *.rar
 
 
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Claude AI assistant files
+.claude/
+
+# Personal/non-project markdown files
+CONTACT_FORM_IMPLEMENTATION.md
+DEPLOYMENT.md
+INTERVIEW_PREP.md
+POLICY_DASHBOARD_GUIDE.md
+RESUME_DESCRIPTIONS.md
+backend/CONTACT_FORM_SETUP.md
+backend/DATABASE_SETUP.md
+frontend/README.md
+
 # Database
 .chroma_db
